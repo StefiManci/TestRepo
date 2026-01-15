@@ -2,6 +2,7 @@ import { useState } from "react";
 import UserList from "../DisplayComponents/UserList";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import api from "../../config/api";
 
 const initialState = {
   userName: "",
@@ -32,15 +33,7 @@ export default function UserManager() {
       password: form.password,
     };
 
-    var response = await axios.post(
-      "http://localhost:5000/api/Auth/create-user",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    var response = await api.post("/Auth/create-user", payload);
   };
 
   const renderContent = () => {

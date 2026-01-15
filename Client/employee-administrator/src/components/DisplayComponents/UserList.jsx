@@ -1,32 +1,27 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import api from "../../config/api";
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
+  const [change, setChange] = useState(0);
 
   const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/Auth/get-users",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await api.get("/auth/get-users");
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch users");
+        console.log("Fetch users response:", response.data.users);
+
+        if (response.data.success) {
+          setUsers(response.data.users);
+        } else {
+          console.error("Failed to fetch users:", response.data.message);
         }
-
-        const data = await response.json();
-        setUsers(data.users);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
@@ -37,30 +32,18 @@ export default function UserList() {
     if (token) {
       fetchUsers();
     }
-  }, [token]);
+  }, [token, change]);
 
   const handleDelete = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/Auth/delete-user/${userId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.delete(`/Auth/delete-user/${userId}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
+      console.log("Delete user response:", response.data);
 
-      setUsers((prev) => prev.filter((u) => u.user.id !== userId));
-
-      if (editingUser?.user.id === userId) {
-        setEditingUser(null);
+      if (response.data.success) {
+        setChange((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -72,7 +55,6 @@ export default function UserList() {
 
   return (
     <div className="w-full h-full mt-8 flex flex-col items-start">
-      {/* USERS TABLE */}
       <table className="min-w-full border border-gray-300">
         <thead className="bg-gray-200">
           <tr>
@@ -85,7 +67,7 @@ export default function UserList() {
         </thead>
 
         <tbody>
-          {users.map(({ user, userRoles }) => (
+          {users.map(({ user, userRoles, customer }) => (
             <tr key={user.id} className="text-center border-t">
               <td className="py-2 px-4 border">{user.id}</td>
               <td className="py-2 px-4 border">{user.userName}</td>
@@ -94,7 +76,7 @@ export default function UserList() {
               <td className="py-2 px-4 border">
                 <button
                   className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600"
-                  onClick={() => setEditingUser({ user, userRoles })}
+                  onClick={() => setEditingUser({ user, userRoles, customer })}
                 >
                   Edit
                 </button>
@@ -109,8 +91,6 @@ export default function UserList() {
           ))}
         </tbody>
       </table>
-
-      {/* EDIT SECTION BELOW TABLE */}
       {editingUser && (
         <div className="w-full mt-6 p-6 border rounded-lg bg-gray-50">
           <h3 className="text-lg font-semibold mb-4">
@@ -119,16 +99,8 @@ export default function UserList() {
 
           <EditUserForm
             user={editingUser.user}
-            token={token}
             onCancel={() => setEditingUser(null)}
-            onSaved={(updatedUser) => {
-              setUsers((prev) =>
-                prev.map((u) =>
-                  u.user.id === updatedUser.user.id ? updatedUser : u
-                )
-              );
-              setEditingUser(null);
-            }}
+            customer={editingUser.customer}
           />
         </div>
       )}
@@ -136,41 +108,34 @@ export default function UserList() {
   );
 }
 
-function EditUserForm({ user, token, onCancel, onSaved }) {
+function EditUserForm({ user, onCancel, customer }) {
   const [userName, setUserName] = useState(user.userName);
   const [email, setEmail] = useState(user.email);
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber ?? "");
+  const [fullName, setFullName] = useState(customer?.fullName ?? "");
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
+
 
   const handleSave = async () => {
     setSaving(true);
 
-    const formData = new FormData();
-    formData.append("userId", user.id);
-
-    if (userName.trim()) formData.append("userName", userName);
-    if (email.trim()) formData.append("email", email);
-    if (phoneNumber.trim()) formData.append("phoneNumber", phoneNumber);
-    if (password.trim()) formData.append("password", password);
-
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/Auth/edit-user",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const payload = {
+        UserId: user.id,
+        UserName: userName,
+        Email: email,
+        PhoneNumber: phoneNumber,
+        FullName: fullName,
+        ...(password.trim() && { Password: password }),
+      };
 
-      if (!response.ok) {
-        throw new Error("Failed to update user");
+      const response = await api.post("/auth/edit-user", payload);
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to update user");
       }
-
-      const data = await response.json();
-      onSaved(data);
+      onCancel();
     } catch (error) {
       console.error("Error updating user:", error);
     } finally {
@@ -185,6 +150,13 @@ function EditUserForm({ user, token, onCancel, onSaved }) {
         value={userName}
         onChange={(e) => setUserName(e.target.value)}
         placeholder="Username"
+      />
+
+      <input
+        className="border rounded p-2"
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+        placeholder="Full Name"
       />
 
       <input

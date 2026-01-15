@@ -68,16 +68,20 @@ namespace EmployeeAdministrator.Modules.AuthModule.Infrastructure
 
                 var users = await _dbContext.Users.ToListAsync();
 
+
                 if (users.Any())
                 {
                     foreach (var user in users)
                     {
                         var userRoles = await _userManager.GetRolesAsync(user);
 
+                        var customerData = await _dbContext.Customers.FirstOrDefaultAsync(c=>c.UserId == user.Id);
+
                         var singleUser = new UserDTO
                         {
                             User = user,
-                            UserRoles = (List<string>)userRoles
+                            UserRoles = (List<string>)userRoles,
+                            Customer = customerData
                         };
 
                         userList.Add(singleUser);

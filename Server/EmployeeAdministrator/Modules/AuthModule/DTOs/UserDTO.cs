@@ -6,6 +6,8 @@ namespace EmployeeAdministrator.Modules.AuthModule.DTOs
     {
         public IdentityUser User { get; set; }
 
+        public Customer Customer { get; set; }
+
         public List<string> UserRoles { get; set; }  = new List<string>();
     }
 }

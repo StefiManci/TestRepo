@@ -1,6 +1,5 @@
 import { useState } from "react";
 import UserManager from "../components/admin/UserManager";
-import TaskManager from "../components/admin/TaskManager";
 import ProjectManager from "../components/admin/ProjectManager";
 
 export default function AdminDashboard() {
