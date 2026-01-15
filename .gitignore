@@ -1,0 +1,71 @@
+# ========================
+# Node / React / Vite
+# ========================
+
+# Node dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Optional cache
+.cache/
+
+# ========================
+# .NET / C#
+# ========================
+
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider IDE
+.idea/
+
+# ReSharper
+*.DotSettings.user
+
+# OS files
+*.DS_Store
+
+# NuGet packages
+*.nupkg
+packages/
+*.snupkg
+
+# Local DB / Cache
+*.mdb
+*.ldf
+*.mdf
+
+# Publish outputs
+publish/
+
+# ASP.NET temporary files
+*.vs/

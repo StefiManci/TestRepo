@@ -1,0 +1,71 @@
+# Full Stack Application (.NET Web API + React Vite) 
+
+##  Overview
+This project provides a production-ready full stack setup:
+- **Backend** → .NET Web API with Identity + JWT authentication
+- **Frontend** → React (Vite) client application
+- **Database** → Microsoft SQL Server
+- **Documentation** → Swagger UI enabled
+
+##  Tech Stack
+**Frontend:** React + Vite  
+**Backend:** .NET Web API  
+**Database:** Microsoft SQL Server  
+**Authentication:** ASP.NET Identity + JWT  
+**API Docs:** Swagger  
+
+## 📁 Project Structure
+/Server → .NET Web API Backend
+/Client → React (Vite) Frontend
+
+## ✅ Prerequisites
+Ensure the following are installed:
+
+- .NET SDK (version you are using, e.g., .NET 8)
+  https://dotnet.microsoft.com/
+
+- Node.js LTS (18+ recommended)
+  https://nodejs.org/
+
+- Microsoft SQL Server
+  Local or remote instance, including SQL Server Express or Docker
+
+# 🔧 Configuration
+
+## Backend Configuration (Server)
+️Navigate to backend
+1)cd Server
+
+2)Configure **appsettings.json**
+
+Set the following:
+- SQL Server connection string  
+- JWT settings  
+- Identity configuration (if you override defaults)
+
+                        *Look For This i appsettings.json*
+"ConnectionStrings": {
+  "DefaultConnection": "Server=YOUR_SERVER;Database=YOUR_DB;Trusted_Connection=True;TrustServerCertificate=True;"
+},
+"Jwt": {
+  "Key": "YOUR_SECRET_KEY",
+  "Issuer": "YOUR_ISSUER",
+  "Audience": "YOUR_AUDIENCE",
+  "ExpiresInMinutes": 60
+}
+
+3)Apply migrations -> Update-Database
+4)Restore Dependencies ->dotnet restore
+
+Frontend Configuration (Client)
+
+1)cd Client and run the following command : npm i or npm install
+2)To configure the axios calls u have to find all axios http routes and replace them with your localhost( where the backend is starting)
+
+//Runing the application
+
+1)First u have to run the /Server using gui or commands and wait till swagger is opened on the browser
+2) Use npm run dev to start the  /Client and follow the given link to access the website
+
+
+                          
