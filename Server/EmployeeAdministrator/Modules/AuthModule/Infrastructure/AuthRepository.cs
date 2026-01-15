@@ -277,7 +277,7 @@ namespace EmployeeAdministrator.Modules.AuthModule.Infrastructure
                 };
             }
 
-            var customer = await _dbContext.Customers.FirstOrDefaultAsync();
+            var customer = await _dbContext.Customers.FirstOrDefaultAsync(c=>c.UserId == userId);
             using var ms = new MemoryStream();
 
             if (customer == null)
