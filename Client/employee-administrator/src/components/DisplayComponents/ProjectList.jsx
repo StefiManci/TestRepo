@@ -1,16 +1,11 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import CreateTask from "../Home/Task/CreateTask";
-import { useSelector } from "react-redux";
+import api from "../../config/api";
 
 export default function ProjectList() {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [tasks, setTasks] = useState([]);
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [newTask, setNewTask] = useState("");
-  const [taskProjectId, setTaskProjectId] = useState(null);
+  const [change, setChange] = useState(0);
 
   //Edit Project State
   const [projectName, setProjectName] = useState("");
@@ -46,22 +41,8 @@ export default function ProjectList() {
     };
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/project/edit-project",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to save project");
-
-      const updatedProject = await response.json();
-      console.log("Project updated:", updatedProject);
+      const response = await api.post("/project/edit-project", payload);
+      console.log("Project updated:", response);
 
       handleProjectModalClose();
     } catch (err) {
@@ -69,48 +50,16 @@ export default function ProjectList() {
     }
   };
 
-  const userId = useSelector((state) => state.auth.userId);
-  const userRole = useSelector((state) => state.auth.userRole);
-  const token = useSelector((state) => state.auth.token);
-
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/api/task/get-tasks",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        let tasksData = response.data.tasks;
-
-        setTasks(tasksData);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      }
-    };
-
-    fetchTasks();
-  }, [newTask, projects]);
-
   useEffect(() => {
     const fetchProjects = async () => {
-      const response = await fetch(
-        "http://localhost:5000/api/project/get-projects",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setProjects(data.projects);
+      const response = await api.get("/project/get-projects");
+
+      console.log("Fetch projects response:", response.data);
+
+      setProjects(response.data.projects);
     };
     fetchProjects();
-  }, []);
+  }, [change]);
 
   const handleEdit = (index) => {
     const project = projects[index];
@@ -125,18 +74,12 @@ export default function ProjectList() {
   const handleDelete = async (index) => {
     try {
       const project = projects[index];
-      const response = await fetch(
-        `http://localhost:5000/api/project/delete-project/${project.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await api.delete(
+        `/project/delete-project/${project.id}`
       );
-      if (!response.ok) throw new Error("Failed to delete project");
 
-      setProjects((prev) => prev.filter((_, i) => i !== index));
+      console.log("Delete project response:", response.data);
+      setChange((prev) => prev + 1);
     } catch (error) {
       console.error("Error deleting project:", error);
     }
@@ -147,154 +90,85 @@ export default function ProjectList() {
     setSelectedProject(null);
   };
 
-  const handleSaveProject = async () => {
-    try {
-      const projectToSave = {
-        ...selectedProject,
-        assignedUserIds: selectedProject.assignedUserIdsStr
-          .split(",")
-          .map((s) => s.trim()),
-        projectTasks: selectedProject.projectTasksStr
-          .split(",")
-          .map((s) => s.trim()),
-      };
-
-      const response = await fetch(
-        `http://localhost:5000/api/project/edit-project`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(projectToSave),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to update project");
-
-      const updatedProject = await response.json();
-
-      setProjects((prev) =>
-        prev.map((proj) =>
-          proj.id === updatedProject.id ? updatedProject : proj
-        )
-      );
-
-      handleProjectModalClose();
-    } catch (error) {
-      console.error("Error updating project:", error);
-    }
-  };
-
-  const handleAddTaskClick = (projectId) => {
-    setTaskProjectId(projectId);
-    setNewTask("");
-    setIsTaskModalOpen(true);
-  };
-
-  const handleTaskModalClose = () => {
-    setIsTaskModalOpen(false);
-    setTaskProjectId(null);
-    setNewTask("");
-  };
-
-  const handleSaveTask = async () => {
-    try {
-      const project = projects.find((p) => p.id === taskProjectId);
-      const updatedTasks = [...project.projectTasks, newTask];
-
-      const response = await fetch(
-        `http://localhost:5000/api/project/edit-project`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ ...project, projectTasks: updatedTasks }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to add task");
-
-      const updatedProject = await response.json();
-
-      setProjects((prev) =>
-        prev.map((p) => (p.id === updatedProject.id ? updatedProject : p))
-      );
-
-      handleTaskModalClose();
-    } catch (error) {
-      console.error("Error adding task:", error);
-    }
-  };
-
   return (
     <>
-      <div className="w-3/4 h-full flex items-center justify-center">
-        <div className="w-full max-h-[70vh] overflow-y-auto space-y-4">
+      <div className="w-3/4 h-full p-6 overflow-y-auto">
+        <div className="max-w-5xl mx-auto space-y-5">
           {projects.length === 0 ? (
-            <p className="text-gray-500">No projects available.</p>
+            <div className="text-center text-gray-500 py-20">
+              No projects available
+            </div>
           ) : (
             projects.map((project, index) => (
               <div
                 key={index}
-                className="p-4 bg-white border rounded-lg shadow-sm"
+                className="bg-white border border-gray-200 rounded-xl shadow-sm p-5"
               >
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-semibold">{project.name}</h3>
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      {project.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {project.description || "No description"}
+                    </p>
+                  </div>
+
                   <span
-                    className={`px-2 py-1 text-xs rounded ${
+                    className={`px-3 py-1 text-xs font-medium rounded-full ${
                       project.isCompleted
                         ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
                     }`}
                   >
                     {project.isCompleted ? "Completed" : "Pending"}
                   </span>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-2">
-                  {project.description}
-                </p>
+                <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
+                  <div>
+                    <span className="font-medium">Due Date:</span>{" "}
+                    {project.dueDate
+                      ? new Date(project.dueDate).toLocaleDateString()
+                      : "N/A"}
+                  </div>
 
-                <div className="text-sm text-gray-700 space-y-1 mb-4">
-                  <p>
-                    <strong>Due Date:</strong>{" "}
-                    {new Date(project.dueDate).toLocaleString()}
-                  </p>
-                  <p>
-                    <strong>Assigned Users:</strong>{" "}
-                    {project.assignedUserIds.join(", ")}
-                  </p>
-                  <p>
-                    <strong>Project Tasks:</strong>{" "}
-                    {tasks
-                      .filter((task) => task.projectId === project.id)
-                      .map((task) => task.title)
-                      .join(", ")}
-                  </p>
+                  <div>
+                    <span className="font-medium">Assigned Users:</span>{" "}
+                    {project.assignedUserIds.length > 0
+                      ? project.assignedUserIds.join(", ")
+                      : "None"}
+                  </div>
+
+                  <div className="col-span-2">
+                    <span className="font-medium">Tasks:</span>{" "}
+                    {project.projectTasks.length > 0
+                      ? project.projectTasks.join(", ")
+                      : "No tasks assigned"}
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-3 pt-3 border-t">
                   <button
                     onClick={() => handleEdit(index)}
-                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
                     Edit
                   </button>
+
                   <button
                     onClick={() => handleDelete(index)}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                    className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
                   >
                     Delete
                   </button>
-                  <button
-                    onClick={() => handleAddTaskClick(project.id)}
-                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                  >
-                    Add Task
+
+                  <button className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">
+                    Manage Tasks
+                  </button>
+
+                  <button className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">
+                    Manage Employees
                   </button>
                 </div>
               </div>
@@ -304,109 +178,73 @@ export default function ProjectList() {
       </div>
 
       {isProjectModalOpen && selectedProject && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Edit Project</h2>
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">Name</label>
-              <input
-                type="text"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                className="w-full border rounded px-3 py-2"
-              />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-xl rounded-xl shadow-xl p-6">
+            <h2 className="text-2xl font-semibold mb-5">Edit Project</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="w-full border rounded-md px-3 py-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Due Date
+                  </label>
+                  <input
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    checked={isCompleted}
+                    onChange={(e) => setIsCompleted(e.target.checked)}
+                  />
+                  <span className="text-sm font-medium">Completed</span>
+                </div>
+              </div>
             </div>
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full border rounded px-3 py-2"
-                rows={3}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">Due Date</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
-            <div className="mb-3 flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isCompleted}
-                onChange={(e) => setIsCompleted(e.target.checked)}
-              />
-              <label className="text-sm font-medium">Completed</label>
-            </div>
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">
-                Assigned Users (IDs)
-              </label>
-              <input
-                type="text"
-                value={assignedUserIds.join(",")}
-                onChange={(e) =>
-                  setAssignedUserIds(
-                    e.target.value
-                      .split(",")
-                      .map((id) => id.trim())
-                      .filter(Boolean)
-                  )
-                }
-                placeholder="user1,user2,user3"
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                Project Tasks
-              </label>
-              <textarea
-                value={projectTasks.join("\n")}
-                onChange={(e) =>
-                  setProjectTasks(
-                    e.target.value
-                      .split("\n")
-                      .map((t) => t.trim())
-                      .filter(Boolean)
-                  )
-                }
-                placeholder="One task per line"
-                className="w-full border rounded px-3 py-2"
-                rows={4}
-              />
-            </div>
-            <div className="flex justify-end gap-2 mt-4">
+
+            <div className="flex justify-end gap-3 mt-6">
               <button
-                type="button"
                 onClick={handleProjectModalClose}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
               >
                 Cancel
               </button>
               <button
-                type="button"
                 onClick={handleEditProject}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                Save
+                Save Changes
               </button>
             </div>
           </div>
         </div>
-      )}
-
-      {isTaskModalOpen && (
-        <CreateTask
-          selectedProject={taskProjectId}
-          closeModal={handleTaskModalClose}
-        ></CreateTask>
       )}
     </>
   );
