@@ -61,6 +61,11 @@ namespace EmployeeAdministrator.Modules.TasksModule.Application.Services
             }
         }
 
+        public async Task<GetTaskResponse> GetProjectTasks(int projectId)
+        {
+            return await _taskRepository.GetProjectTasks(projectId);
+        }
+
         public async Task<GetTaskResponse> GetTask()
         {
             try

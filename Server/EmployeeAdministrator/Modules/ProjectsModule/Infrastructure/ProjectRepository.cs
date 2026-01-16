@@ -1,6 +1,7 @@
 ﻿using EmployeeAdministrator.DataLayer;
 using EmployeeAdministrator.Modules.ProjectsModule.Domain;
 using EmployeeAdministrator.Modules.ProjectsModule.DTOs;
+using EmployeeAdministrator.Modules.ProjectsModule.DTOs.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
@@ -12,6 +13,11 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
         public ProjectRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public Task<AddUserToProjectResponse> AddUserToProject(string userId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<CreateProjectResponse> CreateProject(CreateProjectRequest request)

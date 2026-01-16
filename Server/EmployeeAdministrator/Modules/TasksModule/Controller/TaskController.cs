@@ -82,5 +82,25 @@ namespace EmployeeAdministrator.Modules.TasksModule.Controller
             }
         }
 
+        [HttpGet("get-project-tasks/{projectId}")]
+        public async Task<IActionResult> GetProjectTasks(int projectId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+
+                var response = await _taskService.GetProjectTasks(projectId);
+
+                return Ok(response);
+
+            }catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

@@ -11,5 +11,7 @@ namespace EmployeeAdministrator.Modules.TasksModule.Application.Interfaces
         Task<DeleteTaskResponse> DeleteTask(int taskId);
 
         Task<GetTaskResponse> GetTask();
+
+        Task<GetTaskResponse> GetProjectTasks(int projectId);
     }
 }

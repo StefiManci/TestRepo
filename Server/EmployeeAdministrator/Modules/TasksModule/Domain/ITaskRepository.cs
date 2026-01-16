@@ -11,5 +11,7 @@ namespace EmployeeAdministrator.Modules.TasksModule.Domain
         Task<DeleteTaskResponse> DeleteTask(int taskId);
 
         Task<GetTaskResponse> GetTask();
+
+        Task<GetTaskResponse> GetProjectTasks(int projectId);
     }
 }

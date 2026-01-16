@@ -2,6 +2,7 @@ import { useState } from "react";
 
 export default function ManageProjectUsers({ closeModal, project }) {
   const [isAddingUser, setIsAddingUser] = useState(false);
+  
 
   const handleAddUser = () => {
     setIsAddingUser((prev) => !prev);

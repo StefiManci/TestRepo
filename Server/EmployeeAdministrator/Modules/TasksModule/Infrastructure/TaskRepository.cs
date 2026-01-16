@@ -33,6 +33,14 @@ namespace EmployeeAdministrator.Modules.TasksModule.Infrastructure
                 _dbContext.Tasks.Add(newTask);
                 await _dbContext.SaveChangesAsync();
 
+                var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Id == newTask.ProjectId);
+
+                if (project != null)
+                {
+                    project.ProjectTasks.Add(newTask.Id.ToString());
+                    await _dbContext.SaveChangesAsync(); 
+                }
+
                 return new CreateTaskResponse
                 {
                     Success = true,
@@ -155,5 +163,29 @@ namespace EmployeeAdministrator.Modules.TasksModule.Infrastructure
                 };
             }
         }
+
+        public async Task<GetTaskResponse> GetProjectTasks(int projectId)
+        {
+            try
+            {
+                var tasks = await _dbContext.Tasks.Where(t=>t.ProjectId == projectId).ToListAsync();
+
+                return new GetTaskResponse
+                {
+                    Success = true,
+                    Message = "Tasks Returned Successfully!",
+                    Tasks = tasks
+                };
+            }
+            catch(Exception ex) {
+                return new GetTaskResponse
+                {
+                    Success = false,
+                    Message = "Unexpected Error Occured! "+ ex.Message
+                };
+            }
+        }
+
+
     }
 }
