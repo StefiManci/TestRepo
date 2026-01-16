@@ -1,4 +1,5 @@
 ﻿using EmployeeAdministrator.DataLayer;
+using EmployeeAdministrator.Migrations;
 using EmployeeAdministrator.Modules.ProjectsModule.Domain;
 using EmployeeAdministrator.Modules.ProjectsModule.DTOs;
 using EmployeeAdministrator.Modules.ProjectsModule.DTOs.User;
@@ -19,7 +20,7 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
         {
             try
             {
-                var newProject = new Project
+                var newProject = new DTOs.Project
                 {
                     Name = request.Name,
                     Description = request.Description,
@@ -254,6 +255,28 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
             catch (Exception e)
             {
                 return new AddUserToProjectResponse { Success = false, Message = "Error :" + e.Message };
+            }
+        }
+
+        public async Task<GetUserProjectsResponse> GetUserProjects(string userId)
+        {
+            try
+            {
+                var projects = await _dbContext.Projects.Where(p=>p.AssignedUserIds.Contains(userId)).ToListAsync();
+
+                return new GetUserProjectsResponse
+                {
+                    Success = true,
+                    Message = "User Projects Returned!",
+                    Projects = projects
+                };
+            }catch( Exception e)
+            {
+                return new GetUserProjectsResponse
+                {
+                    Success = false,
+                    Message = "Error: "+e.Message,
+                };
             }
         }
     }

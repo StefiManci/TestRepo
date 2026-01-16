@@ -32,7 +32,9 @@ export default function UserManager() {
 
     var response = await api.post("/Auth/create-user", payload);
 
-    console.log("User creation response:", response);
+    if (response.data.isSuccess) {
+      changeMethod("view");
+    }
   };
 
   const renderContent = () => {

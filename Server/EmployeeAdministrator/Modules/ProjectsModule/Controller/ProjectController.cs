@@ -18,7 +18,7 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Controller
         }
 
         [HttpGet("get-projects")]
-        [Authorize(Roles = "Admin,Employee")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProjects()
         {
             try
@@ -32,6 +32,7 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Controller
                 return BadRequest(ex.Message);
             }
         }
+
 
         [HttpPost("create-project")]
         [Authorize(Roles = "Admin")]
@@ -108,6 +109,7 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Controller
         }
 
         [HttpGet("get-project-users/{projectId}")]
+        [Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> GetProjectUsers(int projectId)
         {
@@ -130,6 +132,7 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Controller
         }
 
         [HttpPost("remove-user/{userId}/from-project/{projectId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RemoveUserFromProject(string userId,int projectId)
         {
             try
@@ -147,6 +150,26 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Controller
             catch(Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("get-user-projects/{userId}")]
+        public async Task<IActionResult> GetUserProjects(string userId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+
+                var response = await _projectService.GetUserProjects(userId);
+
+                return Ok(response);
+
+            }catch(Exception e)
+            {
+                return BadRequest(e.Message) ;
             }
         }
 

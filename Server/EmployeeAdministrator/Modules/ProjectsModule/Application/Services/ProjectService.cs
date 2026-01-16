@@ -92,5 +92,10 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Application.Services
         {
             return await _projectRepository.RemoveUserFromProject(userId, projectId);   
         }
+
+        public async Task<GetUserProjectsResponse> GetUserProjects(string userId)
+        {
+            return await _projectRepository.GetUserProjects(userId);
+        }
     }
 }

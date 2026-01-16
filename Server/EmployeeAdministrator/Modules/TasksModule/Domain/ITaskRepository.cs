@@ -13,5 +13,6 @@ namespace EmployeeAdministrator.Modules.TasksModule.Domain
         Task<GetTaskResponse> GetTask();
 
         Task<GetTaskResponse> GetProjectTasks(int projectId);
+
     }
 }

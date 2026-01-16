@@ -18,5 +18,7 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Application.Interfaces
         Task<GetProjectUsersResponse> GetProjectUsers(int projectId);
 
         Task<RemoveUserFromProjectResponse> RemoveUserFromProject(string userId, int projectId);
+
+        Task<GetUserProjectsResponse> GetUserProjects(string userId);
     }
 }
