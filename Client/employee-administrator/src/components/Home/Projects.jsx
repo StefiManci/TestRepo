@@ -29,63 +29,67 @@ export default function Projects({ setSelectedProject }) {
   };
 
   return (
-    <div className="flex flex-col items-center  w-full gap-6">
+    <div className="flex flex-col items-center w-full gap-6">
       <h1 className="text-3xl font-bold mb-4">Projects</h1>
 
       {loading && <p className="text-gray-500">Loading projects...</p>}
-
       {!loading && projects.length === 0 && (
         <p className="text-gray-500">No projects available.</p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4">
-        {!loading &&
-          projects.map((project) => {
-            const status = project.isCompleted
-              ? "Completed"
-              : project.dueDate && new Date(project.dueDate) < new Date()
-              ? "Overdue"
-              : "In Progress";
+      <div className="w-full overflow-x-auto pb-4">
+        <div className="flex gap-6 px-4 min-w-max">
+          {!loading &&
+            projects.map((project) => {
+              const status = project.isCompleted
+                ? "Completed"
+                : project.dueDate && new Date(project.dueDate) < new Date()
+                ? "Overdue"
+                : "In Progress";
 
-            return (
-              <div
-                key={project.id}
-                onClick={() => handleProjectClick(project.id)}
-                className="bg-white rounded-xl p-6 shadow hover:shadow-xl transform hover:-translate-y-1 transition-all cursor-pointer"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {project.name}
-                  </h2>
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      status === "Completed"
-                        ? "bg-green-100 text-green-700"
-                        : status === "In Progress"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {status}
-                  </span>
+              return (
+                <div
+                  key={project.id}
+                  onClick={() => handleProjectClick(project.id)}
+                  className="min-w-[300px] max-w-[300px] bg-white rounded-xl p-6 shadow hover:shadow-xl transform hover:-translate-y-1 transition-all cursor-pointer flex-shrink-0"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <h2 className="text-xl font-semibold text-gray-800 truncate">
+                      {project.name}
+                    </h2>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        status === "Completed"
+                          ? "bg-green-100 text-green-700"
+                          : status === "In Progress"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {status}
+                    </span>
+                  </div>
+
+                  <p className="text-gray-600 mb-4 line-clamp-3">
+                    {project.description}
+                  </p>
+
+                  <div className="flex justify-between text-sm text-gray-500 mt-auto">
+                    <span>
+                      Created:{" "}
+                      {new Date(project.createdAt).toLocaleDateString()}
+                    </span>
+                    <span>
+                      Due:{" "}
+                      {project.dueDate
+                        ? new Date(project.dueDate).toLocaleDateString()
+                        : "No deadline"}
+                    </span>
+                  </div>
                 </div>
-
-                <p className="text-gray-600 mb-4">{project.description}</p>
-
-                <div className="flex justify-between text-sm text-gray-500 mt-auto">
-                  <span>
-                    Created: {new Date(project.createdAt).toLocaleDateString()}
-                  </span>
-                  <span>
-                    Due:{" "}
-                    {project.dueDate
-                      ? new Date(project.dueDate).toLocaleDateString()
-                      : "No deadline"}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+        </div>
       </div>
     </div>
   );

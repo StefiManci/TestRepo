@@ -48,7 +48,7 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
   };
 
   return (
-    <div className="h-full w-1/2 flex flex-col items-center justify-start gap-4">
+    <div className="flex flex-col items-center  w-full gap-6">
       <h1 className="text-3xl font-bold">Tasks</h1>
 
       <div className="bg-white w-5/6 mt-4 mb-4 px-6 py-4 rounded-lg shadow flex items-center justify-between">
@@ -129,7 +129,9 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
         </div>
       ) : (
         <p className="text-gray-500 mt-4">
-          No tasks assigned to you in this project.
+          {selectedProject !== 0 ? (
+            <h1>No tasks assigned to you in this project.</h1>
+          ) : null}
         </p>
       )}
 
