@@ -197,7 +197,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
             : "border-red-500"
         }`}
                   >
-                    {/* Header */}
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-bold text-lg text-gray-800">
                         {task.title}
@@ -214,8 +213,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
                         {status}
                       </span>
                     </div>
-
-                    {/* Description */}
                     <p className="text-sm text-gray-600 mb-3">
                       {task.description || "No description provided."}
                     </p>

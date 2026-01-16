@@ -1,6 +1,6 @@
 ﻿namespace EmployeeAdministrator.Modules.ProjectsModule.DTOs.User
 {
-    public class AddUserToProjectResponse
+    public class RemoveUserFromProjectResponse
     {
         public bool Success { get; set; }
 

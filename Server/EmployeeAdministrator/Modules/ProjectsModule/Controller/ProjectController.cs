@@ -83,6 +83,72 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Controller
             }
         }
 
+        [HttpPost("add-user/{userId}/to-project/{projectId}")]
+        [Authorize(Roles = "Admin")]
+
+        public async Task<IActionResult> AddUserToProject(string userId,int projectId)
+        {
+            try
+            {
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+
+                var response = await _projectService.AddUserToProject(userId, projectId);
+
+                return Ok(response);
+
+            }
+            catch(Exception ex) 
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-project-users/{projectId}")]
+
+        public async Task<IActionResult> GetProjectUsers(int projectId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+
+                var response = await _projectService.GetProjectUsers(projectId);
+
+                return Ok(response);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
+        [HttpPost("remove-user/{userId}/from-project/{projectId}")]
+        public async Task<IActionResult> RemoveUserFromProject(string userId,int projectId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+
+                var response = await _projectService.RemoveUserFromProject(userId, projectId);  
+
+                return Ok(response);
+
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
     }
 }

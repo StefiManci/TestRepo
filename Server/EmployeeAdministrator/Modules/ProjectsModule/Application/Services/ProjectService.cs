@@ -2,6 +2,7 @@
 using EmployeeAdministrator.Modules.ProjectsModule.Application.Interfaces;
 using EmployeeAdministrator.Modules.ProjectsModule.Domain;
 using EmployeeAdministrator.Modules.ProjectsModule.DTOs;
+using EmployeeAdministrator.Modules.ProjectsModule.DTOs.User;
 
 namespace EmployeeAdministrator.Modules.ProjectsModule.Application.Services
 {
@@ -75,6 +76,21 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Application.Services
                     Message = "Service Error :"+ ex.Message
                 };
             }
+        }
+
+        public async Task<AddUserToProjectResponse> AddUserToProject(string userId, int projectId)
+        {
+           return await _projectRepository.AddUserToProject(userId, projectId);
+        }
+
+        public async Task<GetProjectUsersResponse> GetProjectUsers(int projectId)
+        {
+            return await _projectRepository.GetProjectUsers(projectId);
+        }
+
+        public async Task<RemoveUserFromProjectResponse> RemoveUserFromProject(string userId, int projectId)
+        {
+            return await _projectRepository.RemoveUserFromProject(userId, projectId);   
         }
     }
 }

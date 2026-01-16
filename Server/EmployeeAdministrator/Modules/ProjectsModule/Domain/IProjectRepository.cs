@@ -13,6 +13,10 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Domain
 
         Task<GetProjectResponse> GetProject();
 
-        Task<AddUserToProjectResponse> AddUserToProject(string userId);
+        Task<AddUserToProjectResponse> AddUserToProject(string userId, int projectId);
+
+        Task<GetProjectUsersResponse > GetProjectUsers(int projectId);
+
+        Task<RemoveUserFromProjectResponse> RemoveUserFromProject(string userId,int projectId);
     }
 }

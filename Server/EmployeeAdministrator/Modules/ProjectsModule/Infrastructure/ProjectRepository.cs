@@ -15,11 +15,6 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
             _dbContext = dbContext;
         }
 
-        public Task<AddUserToProjectResponse> AddUserToProject(string userId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<CreateProjectResponse> CreateProject(CreateProjectRequest request)
         {
             try
@@ -160,6 +155,105 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
                     Success = false,
                     Message = "Repository Error: " + e.Message,
                 };
+            }
+        }
+
+        public async Task<GetProjectUsersResponse> GetProjectUsers(int projectId)
+        {
+            try
+            {
+                var response = new GetProjectUsersResponse();
+
+                var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+
+                if(project != null)
+                {
+                    foreach(var userId in project.AssignedUserIds)
+                    {
+                        var singleUser = await _dbContext.Users.FirstOrDefaultAsync(u=>u.Id == userId);
+
+                        if(singleUser != null)
+                        {
+                            var user = new UserDto
+                            {
+                                UserName = singleUser.UserName,
+                                Id = singleUser.Id,
+                                Email = singleUser.Email,
+                                PhoneNumber = singleUser?.PhoneNumber ?? ""
+                            };
+
+                            response.Users.Add(user);
+                        }
+                    }
+
+                    response.Success = true;
+                    response.Message = "Project Users Returned Successfully!";
+
+                    return response;
+                }
+
+                response.Success = false;
+                response.Message = "Project Was Not Found!";
+
+                return response;
+
+            }catch(Exception e)
+            {
+                return new GetProjectUsersResponse
+                {
+                    Success = false,
+                    Message = "Error : " + e.Message,
+                };
+            }
+        }
+
+        public async Task<RemoveUserFromProjectResponse> RemoveUserFromProject(string userId ,int projectId)
+        {
+            try
+            {
+                var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Id==projectId);
+
+                if(project != null)
+                {
+                    project.AssignedUserIds.Remove(userId);
+                    _dbContext.SaveChanges();
+                }
+
+                return new RemoveUserFromProjectResponse { Success = true , Message = "User Removed From Project!"};
+
+            }catch( Exception e )
+            {
+                return new RemoveUserFromProjectResponse { Success = false, Message = "Error : " + e.Message };
+            }
+        }
+
+        public async Task<AddUserToProjectResponse> AddUserToProject(string userId, int projectId)
+        {
+            try
+            {
+                var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+
+                if (project != null)
+                {
+                    if (!project.AssignedUserIds.Contains(userId))
+                    {
+                        project.AssignedUserIds.Add(userId);
+                        _dbContext.SaveChanges();
+
+                        return new AddUserToProjectResponse { Success = true, Message = "User Added To Project!" };
+                    }
+                    else
+                    {
+                        return new AddUserToProjectResponse { Success = false, Message = "User Is Already In The Project!" };
+                    }
+                }
+
+                return new AddUserToProjectResponse { Success = false, Message = "Project Was Not Found!" };
+
+            }
+            catch (Exception e)
+            {
+                return new AddUserToProjectResponse { Success = false, Message = "Error :" + e.Message };
             }
         }
     }
