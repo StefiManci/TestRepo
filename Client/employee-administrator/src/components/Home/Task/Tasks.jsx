@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import api from "../../../config/api";
+import ViewTask from "./ViewTask";
+import CreateTask from "./CreateTask";
 
-export default function Tasks({ selectedProject }) {
+export default function Tasks({ selectedProject, setSelectedProject }) {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewTaskModal, setViewTaskModal] = useState(false);
+  const [taskInView, setTaskInView] = useState(null);
   const userId = useSelector((state) => state.auth.userId);
 
   useEffect(() => {
@@ -13,6 +17,8 @@ export default function Tasks({ selectedProject }) {
         const response = await api.get(
           `/task/get-project-tasks/${selectedProject}`
         );
+
+        console.log(response.data);
 
         if (response.data.success) {
           const userTasks = response.data.tasks.filter((task) =>
@@ -31,21 +37,51 @@ export default function Tasks({ selectedProject }) {
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
+  const handleViewModal = (task) => {
+    setTaskInView(task);
+    setViewTaskModal((prev) => !prev);
+  };
+
+  const handleRemoveSelectedProject = () => {
+    setSelectedProject(0);
+    setTasks(0);
+  };
+
   return (
     <div className="h-full w-1/2 flex flex-col items-center justify-start gap-4">
       <h1 className="text-3xl font-bold">Tasks</h1>
 
-      <button
-        onClick={handleOpenModal}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-      >
-        + Create Task
-      </button>
+      <div className="bg-white w-5/6 mt-4 mb-4 px-6 py-4 rounded-lg shadow flex items-center justify-between">
+        {selectedProject !== 0 ? (
+          <>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleRemoveSelectedProject}
+                className="ml-2 text-gray-400 hover:text-red-600 transition"
+                title="Unselect project"
+              >
+                ✕
+              </button>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Selected Project
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Project ID: {selectedProject}
+                </p>
+              </div>
+            </div>
 
-      <div className="bg-white p-4 rounded-lg shadow w-5/6 mt-4 mb-4">
-        <h2 className="text-xl font-semibold">
-          Selected Project ID: {selectedProject}
-        </h2>
+            <button
+              onClick={handleOpenModal}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition"
+            >
+              + Create Task
+            </button>
+          </>
+        ) : (
+          <h1 className="text-gray-500 font-medium">Please select a project</h1>
+        )}
       </div>
 
       {tasks.length > 0 ? (
@@ -53,6 +89,7 @@ export default function Tasks({ selectedProject }) {
           {tasks.map((task) => (
             <div
               key={task.id}
+              onClick={() => handleViewModal(task)}
               className="bg-gray-50 p-4 rounded-lg shadow hover:shadow-md transition"
             >
               <div className="flex justify-between items-center mb-2">
@@ -97,46 +134,10 @@ export default function Tasks({ selectedProject }) {
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white w-1/3 rounded-lg shadow-lg p-6 relative">
-            <h2 className="text-2xl font-bold mb-4">Create Task</h2>
-
-            <form className="flex flex-col gap-4">
-              <input
-                type="text"
-                placeholder="Task Title"
-                className="border p-2 rounded w-full"
-              />
-              <textarea
-                placeholder="Task Description"
-                className="border p-2 rounded w-full"
-              />
-              <input type="date" className="border p-2 rounded w-full" />
-
-              <div className="flex justify-end gap-2 mt-2">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Create
-                </button>
-              </div>
-            </form>
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
+        <CreateTask projectId={selectedProject} close={handleCloseModal} />
+      )}
+      {viewTaskModal && (
+        <ViewTask task={taskInView} onClose={handleViewModal} />
       )}
     </div>
   );

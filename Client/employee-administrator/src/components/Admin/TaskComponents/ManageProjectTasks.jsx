@@ -7,8 +7,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
 
-  console.log("Project data in ManageProjectTasksModal:", project);
-
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",

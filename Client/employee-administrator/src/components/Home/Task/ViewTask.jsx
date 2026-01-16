@@ -1,144 +1,81 @@
-import { useState } from "react";
-import axios from "axios";
-import { useSelector } from "react-redux";
-
-export default function ViewTask({ closeModal, task, setIsViewingTask }) {
+export default function ViewTask({ task, onClose }) {
   if (!task) return null;
-  const [showAssignInput, setShowAssignInput] = useState(false);
-  const [userId, setUserId] = useState("");
-  const token = useSelector((state) => state.auth.token);
-
-  const handleAssignUser = async () => {
-    if (task.assignedUserIds.includes(userId)) {
-      return;
-    }
-
-    const updatedTask = {
-      ...task,
-      assignedUserIds: [...task.assignedUserIds, userId],
-    };
-
-    setIsViewingTask(updatedTask);
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/Task/edit-task",
-        updatedTask,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50">
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={closeModal}
-      ></div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white w-1/2 h-4/5 rounded-lg shadow-lg p-6 relative overflow-y-auto">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-black"
+        >
+          ✕
+        </button>
 
-      <div className="bg-white h-80 w-150 p-20 rounded-lg shadow-xl  relative z-10">
-        <div className="mb-4 border-b pb-3">
-          <h2 className="text-2xl font-semibold text-gray-800">{task.title}</h2>
-          <p className="text-sm text-gray-500 mt-1">Task ID: {task.id}</p>
-        </div>
+        <h2 className="text-2xl font-semibold mb-4">Task Details</h2>
 
-        <div className="space-y-3 text-sm text-gray-700">
+        <div className="space-y-4">
           <div>
-            <span className="font-medium">Description:</span>
-            <p className="mt-1 text-gray-600">{task.description}</p>
+            <span className="font-semibold">Title:</span>
+            <p>{task.title}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div>
+            <span className="font-semibold">Description:</span>
+            <p>{task.description}</p>
+          </div>
+
+          <div className="flex gap-8">
             <div>
-              <span className="font-medium">Status:</span>
+              <span className="font-semibold">Status:</span>
               <p
-                className={`mt-1 font-semibold ${
-                  task.isCompleted ? "text-green-600" : "text-yellow-600"
+                className={`text-xs px-2 py-1 rounded-full ${
+                  task.isCompleted
+                    ? "bg-green-100 text-green-700"
+                    : task.dueDate && new Date(task.dueDate) < new Date()
+                    ? "bg-red-100 text-red-700"
+                    : "bg-blue-100 text-blue-700"
                 }`}
               >
-                {task.isCompleted ? "Completed" : "Pending"}
+                {task.isCompleted
+                  ? "Completed"
+                  : task.dueDate && new Date(task.dueDate) < new Date()
+                  ? "Overdue"
+                  : "In Progress"}
               </p>
             </div>
 
             <div>
-              <span className="font-medium">Project ID:</span>
-              <p className="mt-1">{task.projectId}</p>
+              <span className="font-semibold">Project ID:</span>
+              <p>{task.projectId}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex gap-8">
             <div>
-              <span className="font-medium">Created At:</span>
-              <p className="mt-1">
-                {new Date(task.createdAt).toLocaleString()}
-              </p>
+              <span className="font-semibold">Created At:</span>
+              <p>{new Date(task.createdAt).toLocaleString()}</p>
             </div>
 
             <div>
-              <span className="font-medium">Due Date:</span>
-              <p className="mt-1">{new Date(task.dueDate).toLocaleString()}</p>
+              <span className="font-semibold">Due Date:</span>
+              <p>{new Date(task.dueDate).toLocaleDateString()}</p>
             </div>
           </div>
 
-          <div className="mt-4">
-            <span className="font-medium text-gray-800">Assigned Users:</span>
-
-            {task.assignedUserIds.length > 0 ? (
-              <div className="mt-1 max-h-20 overflow-y-auto border border-gray-200 rounded-md p-2">
-                <ul className="list-disc list-inside text-gray-600 space-y-1">
-                  {task.assignedUserIds.map((id) => (
-                    <li key={id}>User ID: {id}</li>
-                  ))}
-                </ul>
-              </div>
+          <div>
+            <span className="font-semibold">Assigned Users:</span>
+            {task.assignedUserIds?.length > 0 ? (
+              <ul className="list-disc list-inside mt-2">
+                {task.assignedUserIds.map((userId) => (
+                  <li key={userId} className="text-sm text-gray-700">
+                    {userId}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <p className="mt-1 text-gray-500 italic">No users assigned</p>
+              <p className="text-gray-500">No users assigned</p>
             )}
           </div>
-        </div>
-
-        <div className="mt-20 flex justify-center gap-6">
-          <button
-            onClick={() => setShowAssignInput((prev) => !prev)}
-            className="text-sm px-3 py-1.5 rounded-md border border-gray-300
-                 text-gray-700 hover:bg-gray-100 hover:border-gray-400
-                 transition"
-          >
-            + Assign User
-          </button>
-          <button
-            onClick={closeModal}
-            className="bg-red-500 text-white px-5 py-2 rounded-md hover:bg-red-600 transition"
-          >
-            Close
-          </button>
-          {showAssignInput && (
-            <div className="mt-4 flex items-center justify-center gap-3">
-              <input
-                type="text"
-                placeholder="User ID"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                className="w-32 px-3 py-1.5 border border-gray-300 rounded-md
-                 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <button
-                onClick={handleAssignUser}
-                className="px-4 py-1.5 rounded-md bg-blue-600 text-white
-                 hover:bg-blue-700 disabled:opacity-50 transition"
-              >
-                Assign
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

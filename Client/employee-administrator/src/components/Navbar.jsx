@@ -34,16 +34,14 @@ export default function Navbar() {
       </Link>
 
       <div className="flex gap-8 font-medium">
-        {userRole !== "Admin" && (
-          <Link
-            to="/"
-            className={`relative pb-1 transition-all after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:bg-blue-600 after:transition-all ${isActive(
-              "/"
-            )}`}
-          >
-            Projects
-          </Link>
-        )}
+        <Link
+          to="/"
+          className={`relative pb-1 transition-all after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:bg-blue-600 after:transition-all ${isActive(
+            "/"
+          )}`}
+        >
+          Projects
+        </Link>
 
         <Link
           to="/profile"
