@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import api from "../../config/api";
+import ManageProjectTasksModal from "../Admin/TaskComponents/ManageProjectTasks";
+import ManageProjectUsers from "../Admin/TaskComponents/ManageProjectUsers";
 
 export default function ProjectList() {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [change, setChange] = useState(0);
+  const [isTaskManagerOpen, setIsTaskManagerOpen] = useState(false);
+  const [isUserManagerOpen, setIsUserManagerOpen] = useState(false);
 
   //Edit Project State
   const [projectName, setProjectName] = useState("");
@@ -90,8 +94,30 @@ export default function ProjectList() {
     setSelectedProject(null);
   };
 
+  const handleTaskManager = (projectId) => {
+    setIsTaskManagerOpen((prev) => !prev);
+    setSelectedProject(projects.find((proj) => proj.id === projectId));
+  };
+
+  const handleUserManager = (projectId) => {
+    setIsUserManagerOpen((prev) => !prev);
+    setSelectedProject(projects.find((proj) => proj.id === projectId));
+  };
+
   return (
     <>
+      {isTaskManagerOpen && (
+        <ManageProjectTasksModal
+          closeModal={handleTaskManager}
+          project={selectedProject}
+        />
+      )}
+      {isUserManagerOpen && (
+        <ManageProjectUsers
+          closeModal={handleUserManager}
+          project={selectedProject}
+        />
+      )}
       <div className="w-3/4 h-full p-6 overflow-y-auto">
         <div className="max-w-5xl mx-auto space-y-5">
           {projects.length === 0 ? (
@@ -101,7 +127,7 @@ export default function ProjectList() {
           ) : (
             projects.map((project, index) => (
               <div
-                key={index}
+                key={project.id}
                 className="bg-white border border-gray-200 rounded-xl shadow-sm p-5"
               >
                 <div className="flex items-start justify-between mb-3">
@@ -163,11 +189,17 @@ export default function ProjectList() {
                     Delete
                   </button>
 
-                  <button className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">
+                  <button
+                    onClick={() => handleTaskManager(project.id)}
+                    className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
                     Manage Tasks
                   </button>
 
-                  <button className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">
+                  <button
+                    onClick={() => handleUserManager(project.id)}
+                    className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
                     Manage Employees
                   </button>
                 </div>
