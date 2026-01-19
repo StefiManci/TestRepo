@@ -7,7 +7,7 @@ export default function Navbar() {
   const location = useLocation();
 
   const userName = useSelector((state) => state.auth.userName);
-  const userRole = useSelector((state) => state.auth.userRole[0]);
+  const userRole = useSelector((state) => state.auth.userRole?.[0] ?? null);
 
   const onLogout = () => {
     dispatch(logout());

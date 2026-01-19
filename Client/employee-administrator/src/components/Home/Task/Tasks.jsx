@@ -10,6 +10,7 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
   const [viewTaskModal, setViewTaskModal] = useState(false);
   const [taskInView, setTaskInView] = useState(null);
   const userId = useSelector((state) => state.auth.userId);
+  const [taskAdded, setTaskAdded] = useState(0);
 
   useEffect(() => {
     async function getProjectTasks() {
@@ -32,7 +33,7 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
     }
 
     if (selectedProject) getProjectTasks();
-  }, [selectedProject, userId]);
+  }, [selectedProject, userId, taskAdded]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -136,7 +137,11 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
       )}
 
       {isModalOpen && (
-        <CreateTask projectId={selectedProject} close={handleCloseModal} />
+        <CreateTask
+          projectId={selectedProject}
+          close={handleCloseModal}
+          setTaskAdded={setTaskAdded}
+        />
       )}
       {viewTaskModal && (
         <ViewTask task={taskInView} onClose={handleViewModal} />

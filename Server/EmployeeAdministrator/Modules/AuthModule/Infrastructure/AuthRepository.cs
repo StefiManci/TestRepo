@@ -28,7 +28,7 @@ namespace EmployeeAdministrator.Modules.AuthModule.Infrastructure
 
                 var customer = await _dbContext.Customers.FirstOrDefaultAsync(c=>c.UserId == userId);
 
-                if (user != null && customer != null)
+                if (user != null)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
 

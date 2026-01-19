@@ -109,7 +109,6 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Controller
         }
 
         [HttpGet("get-project-users/{projectId}")]
-        [Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> GetProjectUsers(int projectId)
         {

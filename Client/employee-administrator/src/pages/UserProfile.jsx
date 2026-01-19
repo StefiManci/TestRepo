@@ -33,7 +33,7 @@ export default function UserProfile() {
             password: "",
             email: response.data.user.email,
             phoneNumber: response.data.user.phoneNumber ?? "",
-            fullName: response.data.customer.fullName ?? "",
+            fullName: response.data.customer?.fullName ?? "",
           });
         }
         setLoading(false);
