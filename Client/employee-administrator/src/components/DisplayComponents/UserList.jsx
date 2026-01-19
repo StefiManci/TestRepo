@@ -74,18 +74,22 @@ export default function UserList() {
               <td className="py-2 px-4 border">{user.email}</td>
               <td className="py-2 px-4 border">{userRoles.join(", ")}</td>
               <td className="py-2 px-4 border">
-                <button
-                  className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600"
-                  onClick={() => setEditingUser({ user, userRoles, customer })}
-                >
-                  Edit
-                </button>
-                <button
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  onClick={() => handleDelete(user.id)}
-                >
-                  Delete
-                </button>
+                <div className="flex justify-center gap-2">
+                  <button
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                    onClick={() =>
+                      setEditingUser({ user, userRoles, customer })
+                    }
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+                    onClick={() => handleDelete(user.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
@@ -115,7 +119,6 @@ function EditUserForm({ user, onCancel, customer }) {
   const [fullName, setFullName] = useState(customer?.fullName ?? "");
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
-
 
   const handleSave = async () => {
     setSaving(true);

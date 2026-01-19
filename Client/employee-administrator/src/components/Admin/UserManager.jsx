@@ -36,15 +36,23 @@ export default function UserManager() {
     }
   };
 
+  const tabVariants = {
+    hidden: { opacity: 0, x: 50 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 },
+  };
+
   const renderContent = () => (
-    <AnimatePresence exitBeforeEnter>
+    <AnimatePresence mode="wait">
       {activeTab === "add" && (
         <motion.div
           key="add-user"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="flex-1 flex items-center justify-center"
+          variants={tabVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          transition={{ type: "spring", stiffness: 200, damping: 25 }}
+          className="flex-1 flex items-center justify-center p-6"
         >
           <form
             onSubmit={handleSubmit}
@@ -97,10 +105,12 @@ export default function UserManager() {
       {activeTab === "view" && (
         <motion.div
           key="view-user"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="flex-1 flex items-center justify-center"
+          variants={tabVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          transition={{ type: "spring", stiffness: 200, damping: 25 }}
+          className="flex-1 flex items-center justify-center p-6"
         >
           <UserList />
         </motion.div>
@@ -109,10 +119,16 @@ export default function UserManager() {
       {activeTab === "welcome" && (
         <motion.div
           key="welcome"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="flex-1 flex items-center justify-center"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1 },
+            exit: { opacity: 0 },
+          }}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          transition={{ duration: 0.3 }}
+          className="flex-1 flex items-center justify-center p-6"
         >
           <h2 className="text-gray-600 text-xl">
             Select an action from the sidebar to manage users.
@@ -123,8 +139,7 @@ export default function UserManager() {
   );
 
   return (
-    <div className="flex min-h-screen">
-
+    <div className="flex min-h-screen bg-gray-50">
       <div className="w-60 bg-white shadow-md p-6 flex flex-col gap-4">
         <h2 className="text-2xl font-bold mb-4">Users</h2>
         <button
@@ -148,8 +163,9 @@ export default function UserManager() {
           View Users
         </button>
       </div>
-
-      {renderContent()}
+      <motion.div layout className="flex-1">
+        {renderContent()}
+      </motion.div>
     </div>
   );
 }

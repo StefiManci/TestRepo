@@ -19,6 +19,7 @@ export default function ProjectManager() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [change, setChange] = useState(0);
 
   const token = useSelector((state) => state.auth.token);
 
@@ -73,9 +74,12 @@ export default function ProjectManager() {
 
     try {
       const response = await api.post("/project/create-project", payload);
-      console.log("Project created:", response);
-      setForm(initialState);
-      setIsAddModalOpen(false);
+
+      if (response.data.success) {
+        setForm(initialState);
+        setIsAddModalOpen(false);
+        setChange((prev) => prev + 1);
+      }
     } catch (error) {
       console.error("Error creating project:", error);
     }
@@ -116,7 +120,7 @@ export default function ProjectManager() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <ProjectList />
+              <ProjectList change={change} setChange={setChange} />
             </motion.div>
           )}
 

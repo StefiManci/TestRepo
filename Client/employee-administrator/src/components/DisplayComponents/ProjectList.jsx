@@ -4,11 +4,10 @@ import ManageProjectTasksModal from "../Admin/TaskComponents/ManageProjectTasks"
 import ManageProjectUsers from "../Admin/TaskComponents/ManageProjectUsers";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ProjectList() {
+export default function ProjectList({ change, setChange }) {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [change, setChange] = useState(0);
   const [isTaskManagerOpen, setIsTaskManagerOpen] = useState(false);
   const [isUserManagerOpen, setIsUserManagerOpen] = useState(false);
 
@@ -30,16 +29,18 @@ export default function ProjectList() {
     }
   }, [selectedProject]);
 
-  const fetchProjects = async () => {
-    try {
-      const response = await api.get("/project/get-projects");
-      setProjects(response.data.projects);
-    } catch (err) {
-      console.error("Error fetching projects:", err);
-    }
-  };
-
   useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await api.get("/project/get-projects");
+
+        console.log(response.data);
+        setProjects(response.data.projects);
+      } catch (err) {
+        console.error("Error fetching projects:", err);
+      }
+    };
+
     fetchProjects();
   }, [change]);
 
@@ -96,7 +97,7 @@ export default function ProjectList() {
       )}
 
       <div className="max-w-5xl mx-auto space-y-5">
-        {projects.length === 0 ? (
+        {projects?.length === 0 || projects == null ? (
           <div className="text-center text-gray-500 py-20">
             No projects available
           </div>

@@ -84,7 +84,6 @@ export default function ManageProjectUsers({ closeModal, project }) {
           exit={{ scale: 0.95, opacity: 0 }}
           className="relative w-[75vw] h-[75vh] bg-white rounded-lg shadow-lg flex flex-col"
         >
-          {/* Header */}
           <div className="border-b px-6 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">
               Manage Users for{" "}
@@ -97,8 +96,6 @@ export default function ManageProjectUsers({ closeModal, project }) {
               {isAddingUser ? "Close" : "+ Add User"}
             </button>
           </div>
-
-          {/* Add User Form */}
           <AnimatePresence>
             {isAddingUser && (
               <motion.div
@@ -138,8 +135,6 @@ export default function ManageProjectUsers({ closeModal, project }) {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* User List */}
           <div className="flex-1 overflow-y-auto p-6">
             {users.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -181,8 +176,6 @@ export default function ManageProjectUsers({ closeModal, project }) {
               </div>
             )}
           </div>
-
-          {/* Footer */}
           <div className="border-t px-6 py-4 flex justify-end">
             <button
               onClick={closeModal}
