@@ -8,6 +8,25 @@ export default function ViewTask({ task, onClose, setChange }) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedTask, setEditedTask] = useState(null);
   const [newUserId, setNewUserId] = useState("");
+  const [users, setUsers] = useState(null);
+
+  useEffect(() => {
+    async function fetchProjectUsers() {
+      try {
+        var response = await api.get(
+          `project/get-project-users/${task.projectId}`,
+        );
+
+        if (response.data.success) {
+          setUsers(response.data.users);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchProjectUsers();
+  }, [task]);
 
   useEffect(() => {
     if (task) {
@@ -16,6 +35,9 @@ export default function ViewTask({ task, onClose, setChange }) {
   }, [task]);
 
   if (!task || !editedTask) return null;
+
+  const availableUsers =
+    users?.filter((u) => !editedTask.assignedUserIds.includes(u.id)) || [];
 
   const handleChange = (field, value) => {
     setEditedTask((prev) => ({
@@ -174,24 +196,30 @@ export default function ViewTask({ task, onClose, setChange }) {
 
             {editedTask.assignedUserIds?.length > 0 ? (
               <ul className="mt-2 space-y-2">
-                {editedTask.assignedUserIds.map((userId) => (
-                  <li
-                    key={userId}
-                    className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded"
-                  >
-                    <span className="text-sm text-gray-700">{userId}</span>
+                {editedTask.assignedUserIds.map((userId) => {
+                  const user = users?.find((u) => u.id === userId);
 
-                    {userRole[0] === "Admin" && isEditMode && (
-                      <button
-                        onClick={() => handleRemoveUser(userId)}
-                        className="text-red-600 hover:text-red-800 font-bold"
-                        title="Remove user"
-                      >
-                        −
-                      </button>
-                    )}
-                  </li>
-                ))}
+                  return (
+                    <li
+                      key={userId}
+                      className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded"
+                    >
+                      <span className="text-sm text-gray-700">
+                        {user ? user.userName : userId}{" "}
+                      </span>
+
+                      {userRole[0] === "Admin" && isEditMode && (
+                        <button
+                          onClick={() => handleRemoveUser(userId)}
+                          className="text-red-600 hover:text-red-800 font-bold"
+                          title="Remove user"
+                        >
+                          −
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="text-gray-500 mt-2">No users assigned</p>
@@ -199,15 +227,23 @@ export default function ViewTask({ task, onClose, setChange }) {
 
             {userRole[0] === "Admin" && isEditMode && (
               <div className="mt-3 flex gap-2">
-                <input
+                <select
                   className="border rounded px-2 py-1 flex-1"
-                  placeholder="User ID"
                   value={newUserId}
                   onChange={(e) => setNewUserId(e.target.value)}
-                />
+                >
+                  <option value="">Select user to add</option>
+                  {availableUsers.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.userName} ({user.id})
+                    </option>
+                  ))}
+                </select>
+
                 <button
                   onClick={handleAddUser}
-                  className="text-blue-600 hover:text-blue-800 font-semibold"
+                  disabled={!newUserId}
+                  className="text-blue-600 hover:text-blue-800 font-semibold disabled:text-gray-400"
                 >
                   Add
                 </button>

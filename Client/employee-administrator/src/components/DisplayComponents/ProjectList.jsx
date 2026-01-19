@@ -26,7 +26,7 @@ export default function ProjectList() {
       setDescription(selectedProject.description ?? "");
       setIsCompleted(!!selectedProject.isCompleted);
       setDueDate(
-        selectedProject.dueDate ? selectedProject.dueDate.split("T")[0] : ""
+        selectedProject.dueDate ? selectedProject.dueDate.split("T")[0] : "",
       );
       setAssignedUserIds(selectedProject.assignedUserIds ?? []);
       setProjectTasks(selectedProject.projectTasks ?? []);
@@ -79,7 +79,7 @@ export default function ProjectList() {
     try {
       const project = projects[index];
       const response = await api.delete(
-        `/project/delete-project/${project.id}`
+        `/project/delete-project/${project.id}`,
       );
 
       console.log("Delete project response:", response.data);
@@ -162,14 +162,14 @@ export default function ProjectList() {
                   <div>
                     <span className="font-medium">Assigned Users:</span>{" "}
                     {project.assignedUserIds.length > 0
-                      ? project.assignedUserIds.join(", ")
+                      ? project.assignedUserIds.length
                       : "None"}
                   </div>
 
                   <div className="col-span-2">
                     <span className="font-medium">Tasks:</span>{" "}
                     {project.projectTasks.length > 0
-                      ? project.projectTasks.join(", ")
+                      ? project.projectTasks.length
                       : "No tasks assigned"}
                   </div>
                 </div>
