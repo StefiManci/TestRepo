@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import api from "../../../config/api";
+import { motion } from "framer-motion";
 
 export default function ViewTask({ task, onClose, setChange }) {
   const userRole = useSelector((state) => state.auth.userRole);
@@ -13,13 +14,10 @@ export default function ViewTask({ task, onClose, setChange }) {
   useEffect(() => {
     async function fetchProjectUsers() {
       try {
-        var response = await api.get(
+        const response = await api.get(
           `project/get-project-users/${task.projectId}`,
         );
-
-        if (response.data.success) {
-          setUsers(response.data.users);
-        }
+        if (response.data.success) setUsers(response.data.users);
       } catch (err) {
         console.error(err);
       }
@@ -29,9 +27,7 @@ export default function ViewTask({ task, onClose, setChange }) {
   }, [task]);
 
   useEffect(() => {
-    if (task) {
-      setEditedTask({ ...task });
-    }
+    if (task) setEditedTask({ ...task });
   }, [task]);
 
   if (!task || !editedTask) return null;
@@ -39,67 +35,64 @@ export default function ViewTask({ task, onClose, setChange }) {
   const availableUsers =
     users?.filter((u) => !editedTask.assignedUserIds.includes(u.id)) || [];
 
-  const handleChange = (field, value) => {
-    setEditedTask((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const handleChange = (field, value) =>
+    setEditedTask((prev) => ({ ...prev, [field]: value }));
 
   const handleSave = async () => {
-    console.log("Saved locally:", editedTask);
-
     try {
       const response = await api.post("/task/edit-task", editedTask);
-
-      console.log(response.data);
-
-      if (response.data.success) {
-        setChange((prev) => prev + 1);
-      }
+      if (response.data.success) setChange((prev) => prev + 1);
     } catch (err) {
       console.log(err);
     }
     setIsEditMode(false);
   };
 
-  const handleRemoveUser = (userId) => {
+  const handleRemoveUser = (userId) =>
     setEditedTask((prev) => ({
       ...prev,
       assignedUserIds: prev.assignedUserIds.filter((id) => id !== userId),
     }));
-  };
 
   const handleAddUser = () => {
-    if (!newUserId.trim()) return;
-
-    if (editedTask.assignedUserIds.includes(newUserId)) return;
-
+    if (!newUserId) return;
     setEditedTask((prev) => ({
       ...prev,
       assignedUserIds: [...prev.assignedUserIds, newUserId],
     }));
-
     setNewUserId("");
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white w-1/2 h-4/5 rounded-lg shadow-lg p-6 relative overflow-y-auto">
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white w-1/2 h-4/5 rounded-lg shadow-lg p-6 relative overflow-y-auto"
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-black"
+          className="absolute top-4 right-4 text-gray-500 hover:text-black transition"
         >
           ✕
         </button>
 
         {userRole[0] === "Admin" && (
-          <button
+          <motion.button
             onClick={() => (isEditMode ? handleSave() : setIsEditMode(true))}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="absolute top-4 right-12 text-blue-600 hover:text-blue-800 font-semibold"
           >
             {isEditMode ? "Save" : "Edit"}
-          </button>
+          </motion.button>
         )}
 
         <h2 className="text-2xl font-semibold mb-4">Task Details</h2>
@@ -191,31 +184,31 @@ export default function ViewTask({ task, onClose, setChange }) {
               )}
             </div>
           </div>
+
           <div>
             <span className="font-semibold">Assigned Users:</span>
-
             {editedTask.assignedUserIds?.length > 0 ? (
               <ul className="mt-2 space-y-2">
                 {editedTask.assignedUserIds.map((userId) => {
                   const user = users?.find((u) => u.id === userId);
-
                   return (
                     <li
                       key={userId}
                       className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded"
                     >
                       <span className="text-sm text-gray-700">
-                        {user ? user.userName : userId}{" "}
+                        {user ? user.userName : userId}
                       </span>
 
                       {userRole[0] === "Admin" && isEditMode && (
-                        <button
+                        <motion.button
                           onClick={() => handleRemoveUser(userId)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
                           className="text-red-600 hover:text-red-800 font-bold"
-                          title="Remove user"
                         >
                           −
-                        </button>
+                        </motion.button>
                       )}
                     </li>
                   );
@@ -240,18 +233,20 @@ export default function ViewTask({ task, onClose, setChange }) {
                   ))}
                 </select>
 
-                <button
+                <motion.button
                   onClick={handleAddUser}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   disabled={!newUserId}
                   className="text-blue-600 hover:text-blue-800 font-semibold disabled:text-gray-400"
                 >
                   Add
-                </button>
+                </motion.button>
               </div>
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

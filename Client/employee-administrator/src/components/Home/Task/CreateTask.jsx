@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../../../config/api";
+import { motion } from "framer-motion";
 
 export default function CreateTask({ projectId, close, setTaskAdded }) {
   const [users, setUsers] = useState([]);
@@ -20,11 +21,8 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
     const fetchProjectUsers = async () => {
       try {
         const response = await api.get(
-          `/project/get-project-users/${projectId}`
+          `/project/get-project-users/${projectId}`,
         );
-
-        console.log(response.data.users);
-
         if (response.data?.success) {
           setUsers(response.data.users ?? []);
         }
@@ -41,7 +39,6 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
   const handleSubmitTask = async () => {
     try {
       const response = await api.post("/task/create-task", newTask);
-
       if (response.data?.success) {
         setNewTask({
           title: "",
@@ -51,9 +48,7 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
           projectId,
           assignedUserIds: [],
         });
-
         setTaskAdded((prev) => prev + 1);
-
         close();
       }
     } catch (error) {
@@ -62,11 +57,25 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white w-1/2 h-4/5 rounded-lg shadow-lg p-6 relative">
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white w-1/2 h-4/5 rounded-lg shadow-lg p-6 relative flex flex-col"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Create Task</h2>
-          <button onClick={close} className="text-gray-500 hover:text-gray-800">
+          <button
+            onClick={close}
+            className="text-gray-500 hover:text-gray-800 transition"
+          >
             ✕
           </button>
         </div>
@@ -81,7 +90,7 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
 
         <textarea
           placeholder="Description"
-          className="mb-2 p-2 border rounded w-full"
+          className="mb-2 p-2 border rounded w-full flex-1"
           value={newTask.description}
           onChange={(e) =>
             setNewTask({ ...newTask, description: e.target.value })
@@ -90,14 +99,13 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
 
         <input
           type="date"
-          className="mb-2 p-2 border rounded w-full"
+          className="mb-4 p-2 border rounded w-full"
           value={newTask.dueDate}
           onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
         />
 
-        <div className="mb-4">
+        <div className="mb-4 flex flex-col">
           <label className="block mb-1 font-medium">Assign Users</label>
-
           {loadingUsers ? (
             <p className="text-sm text-gray-500">Loading users...</p>
           ) : (
@@ -108,18 +116,14 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
               onChange={(e) => {
                 const selected = Array.from(
                   e.target.selectedOptions,
-                  (opt) => opt.value
+                  (opt) => opt.value,
                 );
-                setNewTask({
-                  ...newTask,
-                  assignedUserIds: selected,
-                });
+                setNewTask({ ...newTask, assignedUserIds: selected });
               }}
             >
               {users.length === 0 && (
                 <option disabled>No users available</option>
               )}
-
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
                   {u.userName}
@@ -127,19 +131,20 @@ export default function CreateTask({ projectId, close, setTaskAdded }) {
               ))}
             </select>
           )}
-
           <p className="text-xs text-gray-500 mt-1">
             Hold Ctrl (Windows) / Cmd (Mac) to select multiple users
           </p>
         </div>
 
-        <button
+        <motion.button
           onClick={handleSubmitTask}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-auto self-start"
         >
           Save Task
-        </button>
-      </div>
-    </div>
+        </motion.button>
+      </motion.div>
+    </motion.div>
   );
 }

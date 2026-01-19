@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import api from "../config/api";
+import { motion } from "framer-motion";
 
 export default function UserProfile() {
   const userId = useSelector((state) => state.auth.userId);
@@ -78,7 +79,6 @@ export default function UserProfile() {
         ...editUser,
         password: editUser.password || null,
       });
-      console.log("Response", response.data);
       alert("Profile updated successfully");
     } catch (err) {
       console.error("Save failed", err);
@@ -116,34 +116,48 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex justify-center">
-      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center gap-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 to-blue-400 p-6 flex justify-center items-start">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6"
+      >
+        {/* Left Panel: Profile Photo & Info */}
+        <motion.div
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-center gap-6"
+        >
           <div className="flex flex-col items-center gap-4">
-            <img
+            <motion.img
               src={photoUrl || "/avatar.png"}
               alt="Profile"
               className="w-32 h-32 rounded-full object-cover border-4 border-blue-500"
+              whileHover={{ scale: 1.05 }}
             />
             <h2 className="text-2xl font-semibold">{editUser.fullName}</h2>
             <p className="text-gray-500">{editUser.email}</p>
             <p className="text-sm text-gray-400">Role: {role}</p>
           </div>
 
-          <div className="w-full mt-4">
+          <div className="w-full mt-4 flex flex-col gap-2">
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setPhoto(e.target.files[0])}
-              className="w-full border rounded-lg px-3 py-2 mb-2"
+              className="w-full border rounded-lg px-3 py-2"
             />
-            <button
+            <motion.button
               onClick={uploadPhoto}
               disabled={!photo}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               className="w-full bg-blue-600 text-white py-2 rounded-lg shadow hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               Upload Photo
-            </button>
+            </motion.button>
           </div>
 
           <div className="mt-6 space-y-1 text-sm text-gray-700 w-full">
@@ -157,57 +171,81 @@ export default function UserProfile() {
               <strong>Phone:</strong> {editUser.phoneNumber || "N/A"}
             </div>
           </div>
-        </div>
-        <div className="md:col-span-2 bg-white rounded-2xl shadow-lg p-6 flex flex-col gap-4">
+        </motion.div>
+
+        {/* Right Panel: Edit Form */}
+        <motion.div
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="md:col-span-2 bg-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4"
+        >
           <h2 className="text-2xl font-semibold mb-2">Edit Profile</h2>
 
-          <input
+          <motion.input
             name="fullName"
             value={editUser.fullName}
             onChange={handleChange}
             placeholder="Full Name"
             className="w-full border rounded-lg px-3 py-2"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
           />
-          <input
+          <motion.input
             name="userName"
             value={editUser.userName}
             onChange={handleChange}
             placeholder="Username"
             className="w-full border rounded-lg px-3 py-2"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.45 }}
           />
-          <input
+          <motion.input
             type="email"
             name="email"
             value={editUser.email}
             onChange={handleChange}
             placeholder="Email"
             className="w-full border rounded-lg px-3 py-2"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
           />
-          <input
+          <motion.input
             type="password"
             name="password"
             value={editUser.password}
             onChange={handleChange}
             placeholder="New password (optional)"
             className="w-full border rounded-lg px-3 py-2"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.55 }}
           />
-          <input
+          <motion.input
             name="phoneNumber"
             value={editUser.phoneNumber}
             onChange={handleChange}
             placeholder="Phone Number"
             className="w-full border rounded-lg px-3 py-2"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.6 }}
           />
 
-          <button
+          <motion.button
             onClick={handleSave}
             disabled={saving}
-            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors mt-2"
           >
             {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      </div>
+          </motion.button>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

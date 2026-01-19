@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "../store/authSlice";
 import api from "../config/api";
+import { motion } from "framer-motion";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -26,7 +27,7 @@ export default function Login() {
             userName: response.data.userName,
             userRole: response.data.userRole,
             userId: response.data.userId,
-          })
+          }),
         );
       } else {
         setError("Invalid credentials");
@@ -40,18 +41,39 @@ export default function Login() {
   };
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-6">Log In</h1>
+    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8, y: -20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative w-full max-w-md p-10 bg-white rounded-2xl shadow-2xl flex flex-col gap-6"
+      >
+        <motion.h1
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="text-3xl font-bold text-center text-gray-800"
+        >
+          Welcome Back
+        </motion.h1>
 
         {error && (
-          <div className="mb-4 text-red-600 font-medium text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-2 bg-red-100 text-red-700 rounded text-center font-medium"
+          >
             {error}
-          </div>
+          </motion.div>
         )}
 
         <form className="flex flex-col gap-4" onSubmit={handleLogin}>
-          <div className="flex flex-col">
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+            className="flex flex-col"
+          >
             <label className="mb-1 font-medium text-gray-700">Email</label>
             <input
               type="email"
@@ -59,11 +81,15 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             />
-          </div>
-
-          <div className="flex flex-col">
+          </motion.div>
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+            className="flex flex-col"
+          >
             <label className="mb-1 font-medium text-gray-700">Password</label>
             <input
               type="password"
@@ -71,19 +97,20 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             />
-          </div>
-
-          <button
+          </motion.div>
+          <motion.button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="mt-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Log In"}
-          </button>
+          </motion.button>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

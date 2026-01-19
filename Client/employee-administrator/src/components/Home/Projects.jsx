@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import api from "../../config/api";
+import { motion } from "framer-motion";
 
 export default function Projects({ setSelectedProject }) {
   const [projects, setProjects] = useState([]);
@@ -12,11 +13,14 @@ export default function Projects({ setSelectedProject }) {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const response = await api.get(`/project/get-user-projects/${userId}`);
-      console.log(response.data);
-
-      if (response.data.success) {
-        setProjects(response.data.projects);
+      try {
+        const response = await api.get(`/project/get-user-projects/${userId}`);
+        if (response.data.success) {
+          setProjects(response.data.projects);
+        }
+      } catch (err) {
+        console.error("Failed to fetch projects:", err);
+      } finally {
         setLoading(false);
       }
     };
@@ -30,7 +34,7 @@ export default function Projects({ setSelectedProject }) {
 
   return (
     <div className="flex flex-col items-center w-full gap-6">
-      <h1 className="text-3xl font-bold mb-4">Projects</h1>
+      <h1 className="text-3xl font-bold mb-4 text-gray-800">Projects</h1>
 
       {loading && <p className="text-gray-500">Loading projects...</p>}
       {!loading && projects.length === 0 && (
@@ -40,18 +44,25 @@ export default function Projects({ setSelectedProject }) {
       <div className="w-full overflow-x-auto pb-4">
         <div className="flex gap-6 px-4 min-w-max">
           {!loading &&
-            projects.map((project) => {
+            projects.map((project, index) => {
               const status = project.isCompleted
                 ? "Completed"
                 : project.dueDate && new Date(project.dueDate) < new Date()
-                ? "Overdue"
-                : "In Progress";
+                  ? "Overdue"
+                  : "In Progress";
 
               return (
-                <div
+                <motion.div
                   key={project.id}
                   onClick={() => handleProjectClick(project.id)}
-                  className="min-w-[300px] max-w-[300px] bg-white rounded-xl p-6 shadow hover:shadow-xl transform hover:-translate-y-1 transition-all cursor-pointer flex-shrink-0"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{
+                    scale: 1.03,
+                    boxShadow: "0px 15px 25px rgba(0,0,0,0.15)",
+                  }}
+                  className="min-w-[300px] max-w-[300px] bg-white rounded-xl p-6 shadow cursor-pointer flex-shrink-0 flex flex-col"
                 >
                   <div className="flex justify-between items-start mb-3">
                     <h2 className="text-xl font-semibold text-gray-800 truncate">
@@ -62,8 +73,8 @@ export default function Projects({ setSelectedProject }) {
                         status === "Completed"
                           ? "bg-green-100 text-green-700"
                           : status === "In Progress"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-red-100 text-red-700"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-red-100 text-red-700"
                       }`}
                     >
                       {status}
@@ -86,7 +97,7 @@ export default function Projects({ setSelectedProject }) {
                         : "No deadline"}
                     </span>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
         </div>
