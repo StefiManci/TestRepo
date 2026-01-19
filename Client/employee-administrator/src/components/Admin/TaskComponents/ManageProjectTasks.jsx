@@ -91,6 +91,27 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
     }
   };
 
+  const handleDeleteTask = async (e, taskId) => {
+    e.stopPropagation();
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?",
+    );
+    if (!confirmed) return;
+
+    try {
+      const response = await api.delete(`/task/delete-task/${taskId}`);
+
+      if (response.data.success) {
+        setChange((prev) => prev + 1);
+      } else {
+        console.error("Failed to delete task:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="relative w-[75vw] h-[75vh] bg-white rounded-lg shadow-lg flex flex-col overflow-y-auto">
@@ -157,7 +178,7 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
                         value={newTask.assignedUserIds}
                         onChange={(e) => {
                           const selectedOptions = Array.from(
-                            e.target.selectedOptions
+                            e.target.selectedOptions,
                           ).map((opt) => opt.value);
                           setNewTask({
                             ...newTask,
@@ -189,7 +210,11 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
           </div>
         )}
         {isViewingTask && (
-          <ViewTask task={taskInView} onClose={handleViewTask}></ViewTask>
+          <ViewTask
+            task={taskInView}
+            onClose={handleViewTask}
+            setChange={setChange}
+          ></ViewTask>
         )}
         <div className="flex-1 p-6">
           {tasks?.length > 0 ? (
@@ -198,8 +223,8 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
                 const status = task.isCompleted
                   ? "Completed"
                   : task.dueDate && new Date(task.dueDate) < new Date()
-                  ? "Overdue"
-                  : "In Progress";
+                    ? "Overdue"
+                    : "In Progress";
 
                 return (
                   <div
@@ -210,26 +235,37 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
           status === "Completed"
             ? "border-green-500"
             : status === "In Progress"
-            ? "border-blue-500"
-            : "border-red-500"
+              ? "border-blue-500"
+              : "border-red-500"
         }`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-bold text-lg text-gray-800">
                         {task.title}
                       </h3>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full font-medium ${
-                          status === "Completed"
-                            ? "bg-green-100 text-green-700"
-                            : status === "In Progress"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {status}
-                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            status === "Completed"
+                              ? "bg-green-100 text-green-700"
+                              : status === "In Progress"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {status}
+                        </span>
+
+                        <button
+                          onClick={(e) => handleDeleteTask(e, task.id)}
+                          className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
+
                     <p className="text-sm text-gray-600 mb-3">
                       {task.description || "No description provided."}
                     </p>

@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import api from "../../../config/api";
 
-export default function ViewTask({ task, onClose }) {
+export default function ViewTask({ task, onClose, setChange }) {
   const userRole = useSelector((state) => state.auth.userRole);
 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -24,8 +24,20 @@ export default function ViewTask({ task, onClose }) {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log("Saved locally:", editedTask);
+
+    try {
+      const response = await api.post("/task/edit-task", editedTask);
+
+      console.log(response.data);
+
+      if (response.data.success) {
+        setChange((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.log(err);
+    }
     setIsEditMode(false);
   };
 
