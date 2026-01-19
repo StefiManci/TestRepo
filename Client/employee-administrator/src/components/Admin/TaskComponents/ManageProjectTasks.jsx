@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import ViewTask from "../../Home/Task/ViewTask";
 import api from "../../../config/api";
 
 export default function ManageProjectTasksModal({ closeModal, project }) {
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [isViewingTask, setIsViewingTask] = useState(false);
+  const [taskInView, setTaskInView] = useState(null);
   const [change, setChange] = useState(0);
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
@@ -61,6 +64,12 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
     setIsAddingTask((prev) => !prev);
   };
 
+  const handleViewTask = (task) => {
+    console.log(task);
+    setIsViewingTask((prev) => !prev);
+    setTaskInView(task);
+  };
+
   const handleSubmitTask = async () => {
     try {
       const response = await api.post("/task/create-task", newTask);
@@ -85,7 +94,7 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="relative w-[75vw] h-[75vh] bg-white rounded-lg shadow-lg flex flex-col overflow-y-auto">
-        <div className="border-b px-6 py-4 flex justify-between items-center shrink-0">
+        <div className="border-b px-6 py-4 flex justify-around items-center shrink-0">
           <h1 className="text-2xl font-bold">
             Manage Project Tasks for{" "}
             <span className="text-red-500">{project?.name}</span>
@@ -96,6 +105,12 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
             className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             {isAddingTask ? "Cancel" : "+ Add Task"}
+          </button>
+          <button
+            onClick={closeModal}
+            className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+          >
+            Close
           </button>
         </div>
         {isAddingTask && (
@@ -173,6 +188,9 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
             </div>
           </div>
         )}
+        {isViewingTask && (
+          <ViewTask task={taskInView} onClose={handleViewTask}></ViewTask>
+        )}
         <div className="flex-1 p-6">
           {tasks?.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -185,6 +203,7 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
 
                 return (
                   <div
+                    onClick={() => handleViewTask(task)}
                     key={task.id}
                     className={`relative border-l-4 rounded-lg p-4 mb-4 bg-white shadow hover:shadow-lg transition-all duration-200
         ${
@@ -244,14 +263,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
               No tasks found for this project.
             </div>
           )}
-        </div>
-        <div className="border-t px-6 py-4 flex justify-end shrink-0">
-          <button
-            onClick={closeModal}
-            className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>
