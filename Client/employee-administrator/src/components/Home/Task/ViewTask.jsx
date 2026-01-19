@@ -1,5 +1,11 @@
+import { useSelector } from "react-redux";
+
 export default function ViewTask({ task, onClose }) {
+  const userRole = useSelector((state) => state.auth.userRole);
+
   if (!task) return null;
+
+  console.log(userRole);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -64,16 +70,35 @@ export default function ViewTask({ task, onClose }) {
 
           <div>
             <span className="font-semibold">Assigned Users:</span>
+
             {task.assignedUserIds?.length > 0 ? (
-              <ul className="list-disc list-inside mt-2">
+              <ul className="mt-2 space-y-2">
                 {task.assignedUserIds.map((userId) => (
-                  <li key={userId} className="text-sm text-gray-700">
-                    {userId}
+                  <li
+                    key={userId}
+                    className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded"
+                  >
+                    <span className="text-sm text-gray-700">{userId}</span>
+
+                    {userRole[0] === "Admin" && (
+                      <button
+                        className="text-red-600 hover:text-red-800 font-bold"
+                        title="Remove user"
+                      >
+                        −
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500">No users assigned</p>
+              <p className="text-gray-500 mt-2">No users assigned</p>
+            )}
+            {userRole[0] === "Admin" && (
+              <button className="mt-3 flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold">
+                <span className="text-lg">+</span>
+                <span>Add user</span>
+              </button>
             )}
           </div>
         </div>
