@@ -271,9 +271,12 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
                               key={userId}
                               className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs text-white border border-white"
                             >
-                              {userId[0].toUpperCase()}
+                              {task.assignedUserIds.length}
                             </div>
                           ))}
+                          {task.assignedUserIds.length === 1
+                            ? " User"
+                            : " Users"}
                         </div>
                       )}
                     </motion.div>

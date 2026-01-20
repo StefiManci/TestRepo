@@ -9,7 +9,7 @@ export default function UserList() {
   const [editingUser, setEditingUser] = useState(null);
   const [change, setChange] = useState(0);
   const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState("success"); 
+  const [messageType, setMessageType] = useState("success");
 
   const token = useSelector((state) => state.auth.token);
 
@@ -80,46 +80,89 @@ export default function UserList() {
         )}
       </AnimatePresence>
 
-      <table className="min-w-full border border-gray-300">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="py-2 px-4 border">ID</th>
-            <th className="py-2 px-4 border">Username</th>
-            <th className="py-2 px-4 border">Email</th>
-            <th className="py-2 px-4 border">Roles</th>
-            <th className="py-2 px-4 border">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {users.map(({ user, userRoles, customer }) => (
-            <tr key={user.id} className="text-center border-t">
-              <td className="py-2 px-4 border">{user.id}</td>
-              <td className="py-2 px-4 border">{user.userName}</td>
-              <td className="py-2 px-4 border">{user.email}</td>
-              <td className="py-2 px-4 border">{userRoles.join(", ")}</td>
-              <td className="py-2 px-4 border">
-                <div className="flex justify-center gap-2">
-                  <button
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-                    onClick={() =>
-                      setEditingUser({ user, userRoles, customer })
-                    }
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                    onClick={() => handleDelete(user.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
+      <div className="w-full overflow-x-auto rounded-xl shadow-lg bg-white">
+        <table className="min-w-full border-collapse">
+          <thead className="bg-gradient-to-r from-slate-800 to-slate-700 text-white sticky top-0 z-10">
+            <tr>
+              <th className="px-6 py-3 text-left text-sm font-semibold">ID</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold">
+                Username
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold">
+                Roles
+              </th>
+              <th className="px-6 py-3 text-center text-sm font-semibold">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            <AnimatePresence>
+              {users.map(({ user, userRoles, customer }) => (
+                <motion.tr
+                  key={user.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="border-b last:border-b-0 hover:bg-slate-50 transition"
+                >
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    #{user.id.slice(0, 6)}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="font-medium text-gray-900">
+                      {user.userName}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {user.email}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1">
+                      {userRoles.map((role) => (
+                        <span
+                          key={role}
+                          className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700"
+                        >
+                          {role}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() =>
+                          setEditingUser({ user, userRoles, customer })
+                        }
+                        className="px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(user.id)}
+                        className="px-3 py-1.5 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
+          </tbody>
+        </table>
+      </div>
 
       {editingUser && (
         <div className="w-full mt-6 p-6 border rounded-lg bg-gray-50">
