@@ -89,7 +89,7 @@ export default function ProjectManager() {
       if (response.data.success) {
         setForm(initialState);
         setChange((prev) => prev + 1);
-        setSuccessMessage("Project created successfully.");
+        setSuccessMessage(response.data.message);
         setTimeout(() => setIsAddModalOpen(false), 1000);
         setTimeout(() => setSuccessMessage(null), 1000);
       } else {

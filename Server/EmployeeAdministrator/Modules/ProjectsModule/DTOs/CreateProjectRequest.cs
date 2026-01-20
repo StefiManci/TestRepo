@@ -17,10 +17,8 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.DTOs
         [FutureDate(ErrorMessage = "Due date must be in the future.")]
         public DateTime? DueDate { get; set; }
 
-        [MinLength(1, ErrorMessage = "At least one user must be assigned to the project.")]
         public List<string> AssignedUserIds { get; set; } = new();
 
-        [MinLength(1, ErrorMessage = "Project must contain at least one task.")]
         public List<string> ProjectTasks { get; set; } = new();
     }
     public class FutureDateAttribute : ValidationAttribute

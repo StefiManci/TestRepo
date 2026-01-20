@@ -35,7 +35,10 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await api.get("/auth/get-users");
+        console.log(project);
+        const response = await api.get(
+          `/project/get-project-users/${project.id}`,
+        );
         if (response.data.success) setUsers(response.data.users);
       } catch (err) {
         console.error("Error fetching users:", err);
@@ -96,7 +99,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
           exit={{ scale: 0.95, opacity: 0 }}
           className="relative w-[75vw] h-[75vh] bg-white rounded-lg shadow-lg flex flex-col overflow-y-auto"
         >
-          {/* Header */}
           <div className="border-b px-6 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">
               Manage Tasks for{" "}
@@ -117,8 +119,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
               </button>
             </div>
           </div>
-
-          {/* Add Task Form */}
           <AnimatePresence>
             {isAddingTask && (
               <motion.div
@@ -173,8 +173,8 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
                       }
                     >
                       {users.map((user) => (
-                        <option key={user.user.id} value={user.user.id}>
-                          {user.user.userName} ({user.user.id})
+                        <option key={user.id} value={user.id}>
+                          {user.userName} ({user.id})
                         </option>
                       ))}
                     </select>
@@ -193,8 +193,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* View Task */}
           {isViewingTask && (
             <ViewTask
               task={taskInView}
@@ -202,8 +200,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
               setChange={setChange}
             />
           )}
-
-          {/* Task List */}
           <div className="flex-1 p-6 overflow-y-auto">
             {tasks.length === 0 ? (
               <div className="flex items-center justify-center h-full text-gray-500">

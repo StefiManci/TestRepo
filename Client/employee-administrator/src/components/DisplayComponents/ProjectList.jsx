@@ -11,13 +11,15 @@ export default function ProjectList({ change, setChange }) {
   const [isTaskManagerOpen, setIsTaskManagerOpen] = useState(false);
   const [isUserManagerOpen, setIsUserManagerOpen] = useState(false);
 
-  // Edit Project State
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
   const [dueDate, setDueDate] = useState("");
 
-  // Load selected project data into state
+  const [editErrors, setEditErrors] = useState({});
+  const [editSuccess, setEditSuccess] = useState("");
+  const [editError, setEditError] = useState("");
+
   useEffect(() => {
     if (selectedProject) {
       setProjectName(selectedProject.name ?? "");
@@ -45,21 +47,58 @@ export default function ProjectList({ change, setChange }) {
   }, [change]);
 
   const handleEditProject = async () => {
+    setEditErrors({});
+    setEditSuccess("");
+    setEditError("");
+
+    if (!validateEditProject()) return;
+
     const payload = {
       id: selectedProject.id,
       name: projectName,
       description,
       isCompleted,
-      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+      dueDate: new Date(dueDate).toISOString(),
     };
+
     try {
-      await api.post("/project/edit-project", payload);
-      setIsProjectModalOpen(false);
-      setSelectedProject(null);
-      setChange((prev) => prev + 1);
+      const response = await api.post("/project/edit-project", payload);
+
+      if (response.data?.success) {
+        setEditSuccess(response.data.message);
+        setChange((prev) => prev + 1);
+        setTimeout(() => setIsProjectModalOpen(false), 2000);
+        setTimeout(() => setEditSuccess(null), 2000);
+        setTimeout(() => setSelectedProject(null), 2000);
+      } else {
+        setEditError(response.data?.message || "Failed to update project.");
+      }
     } catch (err) {
+      setEditError(
+        err.response?.data?.message || "Server error while updating project.",
+      );
       console.error("Error editing project:", err);
     }
+  };
+
+  const validateEditProject = () => {
+    const errors = {};
+
+    if (!projectName || projectName.trim().length < 3) {
+      errors.name = "Project name must be at least 3 characters.";
+    }
+
+    if (!dueDate) {
+      errors.dueDate = "Due date is required.";
+    } else {
+      const selectedDate = new Date(dueDate);
+      if (selectedDate <= new Date()) {
+        errors.dueDate = "Due date must be in the future.";
+      }
+    }
+
+    setEditErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleDelete = async (projectId) => {
@@ -196,6 +235,17 @@ export default function ProjectList({ change, setChange }) {
               exit={{ scale: 0.95, opacity: 0 }}
               className="bg-white w-full max-w-xl rounded-xl shadow-xl p-6"
             >
+              {editSuccess && (
+                <div className="mb-4 rounded bg-green-100 text-green-700 px-4 py-2">
+                  {editSuccess}
+                </div>
+              )}
+
+              {editError && (
+                <div className="mb-4 rounded bg-red-100 text-red-700 px-4 py-2">
+                  {editError}
+                </div>
+              )}
               <h2 className="text-2xl font-semibold mb-5">Edit Project</h2>
               <div className="space-y-4">
                 <div>
@@ -206,6 +256,11 @@ export default function ProjectList({ change, setChange }) {
                     onChange={(e) => setProjectName(e.target.value)}
                     className="w-full border rounded-md px-3 py-2"
                   />
+                  {editErrors.name && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {editErrors.name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -224,11 +279,18 @@ export default function ProjectList({ change, setChange }) {
                       Due Date
                     </label>
                     <input
-                      type="date"
+                      type="datetime-local"
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2"
+                      required
+                      className="w-full border rounded px-3 py-2"
                     />
+
+                    {editErrors.dueDate && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {editErrors.dueDate}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 pt-6">
                     <input
