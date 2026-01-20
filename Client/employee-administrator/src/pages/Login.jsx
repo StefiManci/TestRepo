@@ -14,9 +14,14 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
+    if (!isValidGmail(email)) {
+      setError("Only Gmail addresses (@gmail.com) are allowed.");
+      return;
+    }
+
+    setLoading(true);
     try {
       const response = await api.post("/auth/login", { email, password });
 
@@ -30,14 +35,17 @@ export default function Login() {
           }),
         );
       } else {
-        setError("Invalid credentials");
+        setError(response.data.message);
       }
     } catch (err) {
-      console.error("Login error:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const isValidGmail = (email) => {
+    return /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
   };
 
   return (
@@ -81,7 +89,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className={`border ${error ? "border-b-2 border-red-600" : ""} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition`}
             />
           </motion.div>
           <motion.div

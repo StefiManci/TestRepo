@@ -18,7 +18,7 @@ namespace EmployeeAdministrator.Helpers
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            string adminEmail = "admin@example.com";
+            string adminEmail = "admin@gmail.com";
             string adminPassword = "Admin@1234"; 
 
             if (await userManager.FindByEmailAsync(adminEmail) == null)

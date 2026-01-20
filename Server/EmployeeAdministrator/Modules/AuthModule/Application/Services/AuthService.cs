@@ -32,6 +32,7 @@ namespace EmployeeAdministrator.Modules.AuthModule.Application.Services
                 {
                     UserName = createUserRequest.UserName,
                     Email = createUserRequest.Email,
+                    PhoneNumber = createUserRequest.PhoneNumber,
                 };
 
                 var result = await _userManager.CreateAsync(newUser, createUserRequest.Password);
@@ -58,6 +59,8 @@ namespace EmployeeAdministrator.Modules.AuthModule.Application.Services
                             Message = "Failed To Add Role To The User!"
                         };
                     }
+                    
+                    
                 }
                 else
                 {
