@@ -20,6 +20,9 @@ export default function ProjectManager() {
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [change, setChange] = useState(0);
+  const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const token = useSelector((state) => state.auth.token);
 
@@ -64,12 +67,20 @@ export default function ProjectManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setErrors({});
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    if (!validateForm()) return;
+
     const payload = {
       ...form,
       dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : null,
       projectTasks: form.projectTasks
-        ? form.projectTasks.split(",").map((x) => x.trim())
-        : [],
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean),
     };
 
     try {
@@ -77,12 +88,41 @@ export default function ProjectManager() {
 
       if (response.data.success) {
         setForm(initialState);
-        setIsAddModalOpen(false);
         setChange((prev) => prev + 1);
+        setSuccessMessage("Project created successfully.");
+        setTimeout(() => setIsAddModalOpen(false), 1000);
+        setTimeout(() => setSuccessMessage(null), 1000);
+      } else {
+        setErrorMessage(response.data.message || "Failed to create project.");
       }
     } catch (error) {
-      console.error("Error creating project:", error);
+      setErrorMessage(
+        error.response?.data?.message || "Server error while creating project.",
+      );
     }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!form.name || form.name.trim().length < 3) {
+      newErrors.name = "Project name must be at least 3 characters.";
+    }
+
+    if (form.description && form.description.length > 500) {
+      newErrors.description = "Description cannot exceed 500 characters.";
+    }
+
+    if (!form.dueDate) {
+      newErrors.dueDate = "Due date is required.";
+    } else {
+      const selectedDate = new Date(form.dueDate);
+      if (selectedDate <= new Date()) {
+        newErrors.dueDate = "Due date must be in the future.";
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   return (
@@ -161,16 +201,28 @@ export default function ProjectManager() {
               transition={{ duration: 0.3 }}
             >
               <h2 className="text-xl font-semibold mb-6">Create Project</h2>
+              {successMessage && (
+                <div className="mb-4 rounded bg-green-100 text-green-700 px-4 py-2">
+                  {successMessage}
+                </div>
+              )}
 
+              {errorMessage && (
+                <div className="mb-4 rounded bg-red-100 text-red-700 px-4 py-2">
+                  {errorMessage}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <input
                   name="name"
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Project Name"
-                  required
                   className="w-full border rounded px-3 py-2"
                 />
+                {errors.name && (
+                  <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+                )}
 
                 <textarea
                   name="description"
@@ -179,6 +231,11 @@ export default function ProjectManager() {
                   placeholder="Project Description"
                   className="w-full border rounded px-3 py-2"
                 />
+                {errors.description && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.description}
+                  </p>
+                )}
 
                 <div>
                   <label className="block mb-1 font-medium">Assign Users</label>
@@ -226,8 +283,14 @@ export default function ProjectManager() {
                     name="dueDate"
                     value={form.dueDate}
                     onChange={handleChange}
+                    required
                     className="w-full border rounded px-3 py-2"
                   />
+                  {errors.dueDate && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {errors.dueDate}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex justify-end gap-3 mt-4">

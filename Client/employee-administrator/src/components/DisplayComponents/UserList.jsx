@@ -8,8 +8,8 @@ export default function UserList() {
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
   const [change, setChange] = useState(0);
-  const [message, setMessage] = useState(null); // success or error
-  const [messageType, setMessageType] = useState("success"); // "success" | "error"
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState("success"); 
 
   const token = useSelector((state) => state.auth.token);
 
@@ -48,7 +48,6 @@ export default function UserList() {
         setMessage(response.data.message || "Failed to delete user");
       }
 
-      // Hide message after 3 seconds
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       setMessageType("error");
@@ -63,7 +62,6 @@ export default function UserList() {
 
   return (
     <div className="w-full h-full mt-8 flex flex-col items-start relative">
-      {/* Animated Success/Error Message */}
       <AnimatePresence>
         {message && (
           <motion.div
