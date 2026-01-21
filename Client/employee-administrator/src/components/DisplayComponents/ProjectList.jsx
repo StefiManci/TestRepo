@@ -20,6 +20,9 @@ export default function ProjectList({ change, setChange }) {
   const [editSuccess, setEditSuccess] = useState("");
   const [editError, setEditError] = useState("");
 
+  const [deleteError, setDeleteError] = useState(null);
+  const [deleteSuccess, setDeleteSuccess] = useState(null);
+
   useEffect(() => {
     if (selectedProject) {
       setProjectName(selectedProject.name ?? "");
@@ -103,10 +106,25 @@ export default function ProjectList({ change, setChange }) {
 
   const handleDelete = async (projectId) => {
     try {
-      await api.delete(`/project/delete-project/${projectId}`);
-      setChange((prev) => prev + 1);
+      const response = await api.delete(`/project/delete-project/${projectId}`);
+
+      if (response.data.success) {
+        setChange((prev) => prev + 1);
+        setDeleteSuccess(
+          response.data.message || "Project deleted successfully.",
+        );
+        setDeleteError(null);
+        setTimeout(() => setDeleteSuccess(null), 3000);
+      } else {
+        setDeleteError(response.data.message || "Failed to delete project.");
+        setDeleteSuccess(null);
+        setTimeout(() => setDeleteError(null), 3000);
+      }
     } catch (err) {
       console.error("Error deleting project:", err);
+      setDeleteError("Server error while deleting project.");
+      setDeleteSuccess(null);
+      setTimeout(() => setDeleteError(null), 3000);
     }
   };
 
@@ -126,16 +144,41 @@ export default function ProjectList({ change, setChange }) {
         <ManageProjectTasksModal
           closeModal={handleTaskManager}
           project={selectedProject}
+          changed={setChange}
         />
       )}
       {isUserManagerOpen && selectedProject && (
         <ManageProjectUsers
           closeModal={handleUserManager}
           project={selectedProject}
+          changed={setChange}
         />
       )}
 
       <div className="max-w-5xl mx-auto space-y-5">
+        <AnimatePresence>
+          {deleteError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-4 rounded bg-red-100 text-red-700 px-4 py-2 text-center"
+            >
+              {deleteError}
+            </motion.div>
+          )}
+          {deleteSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-4 rounded bg-green-100 text-green-700 px-4 py-2 text-center"
+            >
+              {deleteSuccess}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {projects?.length === 0 || projects == null ? (
           <div className="text-center text-gray-500 py-20">
             No projects available

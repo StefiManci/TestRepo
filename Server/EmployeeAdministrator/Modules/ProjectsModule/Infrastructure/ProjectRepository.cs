@@ -58,6 +58,15 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
 
                 if(projectToBeDeleted != null)
                 {
+                    if (projectToBeDeleted.ProjectTasks.Any())
+                    {
+                        return new DeleteProjectResponse
+                        {
+                            Success = false,
+                            Message = "Project has tasks on it and cannot be deleted!"
+                        };
+                    }
+
                    _dbContext.Projects.Remove(projectToBeDeleted);
                     await _dbContext.SaveChangesAsync();
 

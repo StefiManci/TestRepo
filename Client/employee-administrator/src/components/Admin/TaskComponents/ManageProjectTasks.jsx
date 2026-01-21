@@ -3,7 +3,11 @@ import ViewTask from "../../Home/Task/ViewTask";
 import api from "../../../config/api";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ManageProjectTasksModal({ closeModal, project }) {
+export default function ManageProjectTasksModal({
+  closeModal,
+  project,
+  changed,
+}) {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [isViewingTask, setIsViewingTask] = useState(false);
   const [taskInView, setTaskInView] = useState(null);
@@ -82,11 +86,11 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
     setErrors(currentErrors);
     if (Object.keys(currentErrors).length > 0) return;
 
-    // Submit task to API
     try {
       const response = await api.post("/task/create-task", newTask);
       if (response.data.success) {
         setChange((prev) => prev + 1);
+        changed((prev) => prev + 1);
         setIsAddingTask(false);
         setNewTask({
           title: "",
@@ -110,7 +114,10 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
     try {
       const response = await api.delete(`/task/delete-task/${taskId}`);
-      if (response.data.success) setChange((prev) => prev + 1);
+      if (response.data.success) {
+        changed((prev) => prev + 1);
+        setChange((prev) => prev + 1);
+      }
     } catch (err) {
       console.error("Error deleting task:", err);
     }

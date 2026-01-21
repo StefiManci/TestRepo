@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../../../config/api";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ManageProjectUsers({ closeModal, project }) {
+export default function ManageProjectUsers({ closeModal, project, changed }) {
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [users, setUsers] = useState(null);
   const [allUsers, setAllUsers] = useState(null);
@@ -46,6 +46,7 @@ export default function ManageProjectUsers({ closeModal, project }) {
       if (response.data.success) {
         setIsAddingUser(false);
         setChange((prev) => prev + 1);
+        changed((prev) => prev + 1);
       }
     } catch (err) {
       console.error(err);
@@ -57,7 +58,10 @@ export default function ManageProjectUsers({ closeModal, project }) {
       const response = await api.post(
         `/project/remove-user/${userId}/from-project/${projectId}`,
       );
-      if (response.data.success) setChange((prev) => prev + 1);
+      if (response.data.success) {
+        changed((prev) => prev + 1);
+        setChange((prev) => prev + 1);
+      }
     } catch (err) {
       console.error(err);
     }

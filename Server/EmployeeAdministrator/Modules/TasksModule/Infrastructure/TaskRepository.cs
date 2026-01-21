@@ -64,6 +64,13 @@ namespace EmployeeAdministrator.Modules.TasksModule.Infrastructure
 
                 if (taskToBeDeleted != null)
                 {
+                    var project = await _dbContext.Projects.FirstOrDefaultAsync(p=>p.Id == taskToBeDeleted.ProjectId);
+
+                    if(project != null)
+                    {
+                        project.ProjectTasks.Remove(taskToBeDeleted.Id.ToString());
+                    }
+
                     _dbContext.Tasks.Remove(taskToBeDeleted);
                     await _dbContext.SaveChangesAsync();
 
