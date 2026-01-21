@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 export default function UserProfile() {
   const userId = useSelector((state) => state.auth.userId);
   const role = useSelector((state) => state.auth.userRole);
+  const [errors, setErrors] = useState({});
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -73,6 +74,8 @@ export default function UserProfile() {
   };
 
   const handleSave = async () => {
+    if (!validate()) return;
+
     setSaving(true);
     try {
       const response = await api.post("/auth/edit-user-employee", {
@@ -82,6 +85,7 @@ export default function UserProfile() {
 
       if (response.data.success) {
         alert(response.data.message);
+        setEditUser((prev) => ({ ...prev, password: "" }));
       } else {
         alert(response.data.message);
       }
@@ -112,6 +116,29 @@ export default function UserProfile() {
       console.error(err);
       alert("Upload failed");
     }
+  };
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (editUser.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editUser.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (editUser.password && editUser.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    if (
+      editUser.phoneNumber &&
+      !/^\+?[0-9]{7,15}$/.test(editUser.phoneNumber)
+    ) {
+      newErrors.phoneNumber = "Invalid phone number";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
   };
 
   if (loading) {
@@ -215,6 +242,9 @@ export default function UserProfile() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
           />
+          {errors.email && (
+            <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+          )}
           <motion.input
             type="password"
             name="password"
@@ -226,6 +256,9 @@ export default function UserProfile() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.55 }}
           />
+          {errors.password && (
+            <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+          )}
           <motion.input
             name="phoneNumber"
             value={editUser.phoneNumber}
@@ -236,7 +269,9 @@ export default function UserProfile() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
           />
-
+          {errors.phoneNumber && (
+            <p className="text-red-600 text-sm mt-1">{errors.phoneNumber}</p>
+          )}
           <motion.button
             onClick={handleSave}
             disabled={saving}
