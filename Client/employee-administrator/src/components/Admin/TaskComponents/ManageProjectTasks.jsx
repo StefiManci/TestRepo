@@ -20,6 +20,9 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
     assignedUserIds: [],
   });
 
+  const [errors, setErrors] = useState({});
+  const [newTaskSuccess, setNewTaskSuccess] = useState("");
+
   useEffect(() => {
     async function fetchTasks() {
       try {
@@ -35,7 +38,6 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        console.log(project);
         const response = await api.get(
           `/project/get-project-users/${project.id}`,
         );
@@ -47,13 +49,40 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
     fetchUsers();
   }, [project]);
 
-  const handleAddTaskToggle = () => setIsAddingTask((prev) => !prev);
+  const handleAddTaskToggle = () => {
+    setIsAddingTask((prev) => !prev);
+    setErrors({});
+    setNewTaskSuccess("");
+  };
+
   const handleViewTaskToggle = (task = null) => {
     setIsViewingTask((prev) => !prev);
     setTaskInView(task);
   };
 
   const handleSubmitTask = async () => {
+    const currentErrors = {};
+
+    if (!newTask.title || newTask.title.trim().length < 3) {
+      currentErrors.title = "Title must be at least 3 characters.";
+    }
+
+    if (!newTask.description || newTask.description.trim().length < 10) {
+      currentErrors.description = "Description must be at least 10 characters.";
+    }
+
+    if (!newTask.dueDate) {
+      currentErrors.dueDate = "Due date is required.";
+    } else if (
+      new Date(newTask.dueDate) < new Date(new Date().toDateString())
+    ) {
+      currentErrors.dueDate = "Due date cannot be in the past.";
+    }
+
+    setErrors(currentErrors);
+    if (Object.keys(currentErrors).length > 0) return;
+
+    // Submit task to API
     try {
       const response = await api.post("/task/create-task", newTask);
       if (response.data.success) {
@@ -67,6 +96,9 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
           projectId: project?.id || 0,
           assignedUserIds: [],
         });
+        setNewTaskSuccess("Task saved successfully!");
+        setTimeout(() => setNewTaskSuccess(""), 3000);
+        setErrors({});
       }
     } catch (err) {
       console.error("Error creating task:", err);
@@ -99,6 +131,7 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
           exit={{ scale: 0.95, opacity: 0 }}
           className="relative w-[75vw] h-[75vh] bg-white rounded-lg shadow-lg flex flex-col overflow-y-auto"
         >
+          {/* Header */}
           <div className="border-b px-6 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">
               Manage Tasks for{" "}
@@ -128,31 +161,60 @@ export default function ManageProjectTasksModal({ closeModal, project }) {
                 className="border-b bg-gray-50 px-6 py-4"
               >
                 <div className="space-y-3 text-gray-700">
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    className="w-full p-2 border rounded"
-                    value={newTask.title}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, title: e.target.value })
-                    }
-                  />
-                  <textarea
-                    placeholder="Description"
-                    className="w-full p-2 border rounded"
-                    value={newTask.description}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, description: e.target.value })
-                    }
-                  />
-                  <input
-                    type="date"
-                    className="w-full p-2 border rounded"
-                    value={newTask.dueDate}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, dueDate: e.target.value })
-                    }
-                  />
+                  {newTaskSuccess && (
+                    <p className="text-green-600 font-medium">
+                      {newTaskSuccess}
+                    </p>
+                  )}
+
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Title"
+                      className="w-full p-2 border rounded"
+                      value={newTask.title}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, title: e.target.value })
+                      }
+                    />
+                    {errors.title && (
+                      <p className="text-red-600 text-sm mt-1">
+                        {errors.title}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <textarea
+                      placeholder="Description"
+                      className="w-full p-2 border rounded"
+                      value={newTask.description}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, description: e.target.value })
+                      }
+                    />
+                    {errors.description && (
+                      <p className="text-red-600 text-sm mt-1">
+                        {errors.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <input
+                      type="date"
+                      className="w-full p-2 border rounded"
+                      value={newTask.dueDate}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, dueDate: e.target.value })
+                      }
+                    />
+                    {errors.dueDate && (
+                      <p className="text-red-600 text-sm mt-1">
+                        {errors.dueDate}
+                      </p>
+                    )}
+                  </div>
 
                   <div>
                     <label className="block mb-1 font-medium">
