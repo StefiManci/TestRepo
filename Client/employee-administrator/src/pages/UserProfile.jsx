@@ -75,11 +75,16 @@ export default function UserProfile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const response = await api.post("/auth/edit-user", {
+      const response = await api.post("/auth/edit-user-employee", {
         ...editUser,
         password: editUser.password || null,
       });
-      alert("Profile updated successfully");
+
+      if (response.data.success) {
+        alert(response.data.message);
+      } else {
+        alert(response.data.message);
+      }
     } catch (err) {
       console.error("Save failed", err);
       alert("Failed to update profile");
@@ -123,7 +128,6 @@ export default function UserProfile() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6"
       >
-        {/* Left Panel: Profile Photo & Info */}
         <motion.div
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -172,8 +176,6 @@ export default function UserProfile() {
             </div>
           </div>
         </motion.div>
-
-        {/* Right Panel: Edit Form */}
         <motion.div
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}

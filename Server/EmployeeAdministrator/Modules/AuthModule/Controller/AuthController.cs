@@ -86,12 +86,38 @@ namespace EmployeeAdministrator.Modules.AuthModule.Controller
         }
 
         [HttpPost("edit-user")]
-        [Authorize(Roles = "Admin,Employee")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> EditUser(EditUserRequest editUserRequest)
         {
             try
             {
                 var response = await _authService.EditUser(editUserRequest);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("edit-user-employee")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> EditUserEmployee(EditUserEmployeeRequest editUserRequest)
+        {
+            try
+            {
+                var request = new EditUserRequest
+                {
+                    UserId = editUserRequest.UserId,
+                    UserName = editUserRequest?.UserName,
+                    Password = editUserRequest?.Password,
+                    Email = editUserRequest?.Email,
+                    PhoneNumber = editUserRequest?.PhoneNumber,
+                    FullName = editUserRequest?.FullName,
+                };
+
+                var response = await _authService.EditUser(request);
 
                 return Ok(response);
             }
