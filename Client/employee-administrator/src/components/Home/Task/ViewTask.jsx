@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../../../config/api";
 import { motion } from "framer-motion";
 
-export default function ViewTask({ task, onClose, setChange }) {
+export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
   const userRole = useSelector((state) => state.auth.userRole);
 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -41,7 +41,10 @@ export default function ViewTask({ task, onClose, setChange }) {
   const handleSave = async () => {
     try {
       const response = await api.post("/task/edit-task", editedTask);
-      if (response.data.success) setChange((prev) => prev + 1);
+      if (response.data.success) {
+        setTaskInView(editedTask);
+        setChange((prev) => prev + 1);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -127,7 +130,7 @@ export default function ViewTask({ task, onClose, setChange }) {
 
           <div className="flex gap-8">
             <div>
-              <span className="font-semibold">Status:</span>
+              <span className="font-semibold">Is Completed:</span>
               {isEditMode ? (
                 <input
                   type="checkbox"

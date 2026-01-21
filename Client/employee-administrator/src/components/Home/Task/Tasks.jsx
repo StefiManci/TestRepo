@@ -12,6 +12,7 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
   const [taskInView, setTaskInView] = useState(null);
   const userId = useSelector((state) => state.auth.userId);
   const [taskAdded, setTaskAdded] = useState(0);
+  const [change, setChange] = useState(0);
 
   useEffect(() => {
     async function getProjectTasks() {
@@ -32,7 +33,7 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
     }
 
     if (selectedProject) getProjectTasks();
-  }, [selectedProject, userId, taskAdded]);
+  }, [selectedProject, userId, taskAdded, change]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -106,10 +107,9 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               whileHover={{
-                scale: 1.02,
                 boxShadow: "0px 10px 20px rgba(0,0,0,0.1)",
               }}
-              className="bg-gray-50 p-4 rounded-lg shadow cursor-pointer flex flex-col transition-all"
+              className="bg-gray-50 p-4 rounded-lg shadow cursor-pointer flex flex-col transition-all min-h-[180px]" // <-- added min height
             >
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold text-lg">{task.title}</h3>
@@ -129,10 +129,10 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
                       : "In Progress"}
                 </span>
               </div>
-              <p className="text-gray-600 mb-2">
+              <p className="text-gray-600 mb-2 overflow-y-auto max-h-32">
                 {task.description || "No description provided."}
               </p>
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="flex justify-between text-xs text-gray-500 mt-auto">
                 <span>
                   Created: {new Date(task.createdAt).toLocaleDateString()}
                 </span>
@@ -167,7 +167,12 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
         />
       )}
       {viewTaskModal && (
-        <ViewTask task={taskInView} onClose={handleViewModal} />
+        <ViewTask
+          task={taskInView}
+          onClose={handleViewModal}
+          setChange={setChange}
+          setTaskInView={setTaskInView}
+        />
       )}
     </div>
   );
