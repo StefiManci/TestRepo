@@ -26,10 +26,7 @@ export default function Tasks({
         );
 
         if (response.data.success) {
-          const userTasks = response.data.tasks.filter((task) =>
-            task.assignedUserIds.includes(userId),
-          );
-          setTasks(userTasks);
+          setTasks(response.data.tasks);
         }
       } catch (err) {
         console.error("Error fetching tasks:", err);
@@ -103,52 +100,71 @@ export default function Tasks({
 
       {tasks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-5/6 overflow-y-auto">
-          {tasks.map((task, index) => (
-            <motion.div
-              key={task.id}
-              onClick={() => handleViewModal(task)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{
-                boxShadow: "0px 10px 20px rgba(0,0,0,0.1)",
-              }}
-              className="bg-gray-50 p-4 rounded-lg shadow cursor-pointer flex flex-col transition-all min-h-[180px]" // <-- added min height
-            >
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-semibold text-lg">{task.title}</h3>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    task.isCompleted
-                      ? "bg-green-100 text-green-700"
+          {tasks.map((task, index) => {
+            // Check if the current user is assigned to this task
+            const isAssignedToMe = task.assignedUserIds.includes(userId);
+
+            return (
+              <motion.div
+                key={task.id}
+                onClick={() => {
+                  if (isAssignedToMe) {
+                    handleViewModal(task); // allow editing
+                  } else {
+                    alert(
+                      "This task is view-only because you are not assigned to it.",
+                    );
+                  }
+                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileHover={{
+                  boxShadow: isAssignedToMe
+                    ? "0px 10px 20px rgba(0,0,0,0.1)"
+                    : "none",
+                }}
+                className={`bg-gray-50 p-4 rounded-lg shadow flex flex-col transition-all min-h-[180px] ${
+                  !isAssignedToMe
+                    ? "opacity-70 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-lg">{task.title}</h3>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      task.isCompleted
+                        ? "bg-green-100 text-green-700"
+                        : task.dueDate && new Date(task.dueDate) < new Date()
+                          ? "bg-red-100 text-red-700"
+                          : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {task.isCompleted
+                      ? "Completed"
                       : task.dueDate && new Date(task.dueDate) < new Date()
-                        ? "bg-red-100 text-red-700"
-                        : "bg-blue-100 text-blue-700"
-                  }`}
-                >
-                  {task.isCompleted
-                    ? "Completed"
-                    : task.dueDate && new Date(task.dueDate) < new Date()
-                      ? "Overdue"
-                      : "In Progress"}
-                </span>
-              </div>
-              <p className="text-gray-600 mb-2 overflow-y-auto max-h-32">
-                {task.description || "No description provided."}
-              </p>
-              <div className="flex justify-between text-xs text-gray-500 mt-auto">
-                <span>
-                  Created: {new Date(task.createdAt).toLocaleDateString()}
-                </span>
-                <span>
-                  Due:{" "}
-                  {task.dueDate
-                    ? new Date(task.dueDate).toLocaleDateString()
-                    : "No deadline"}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+                        ? "Overdue"
+                        : "In Progress"}
+                  </span>
+                </div>
+                <p className="text-gray-600 mb-2 overflow-y-auto max-h-32">
+                  {task.description || "No description provided."}
+                </p>
+                <div className="flex justify-between text-xs text-gray-500 mt-auto">
+                  <span>
+                    Created: {new Date(task.createdAt).toLocaleDateString()}
+                  </span>
+                  <span>
+                    Due:{" "}
+                    {task.dueDate
+                      ? new Date(task.dueDate).toLocaleDateString()
+                      : "No deadline"}
+                  </span>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       ) : (
         <motion.p

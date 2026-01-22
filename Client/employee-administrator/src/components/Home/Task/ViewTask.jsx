@@ -76,8 +76,6 @@ export default function ViewTask({
   const handleSave = async () => {
     if (!validate()) return;
 
-    console.log(projectDueDate);
-
     try {
       const response = await api.post("/task/edit-task", editedTask);
       if (response.data.success) {
@@ -126,7 +124,6 @@ export default function ViewTask({
           ✕
         </button>
 
-        {userRole[0] === "Admin" && (
           <motion.button
             onClick={() => (isEditMode ? handleSave() : setIsEditMode(true))}
             whileHover={{ scale: 1.05 }}
@@ -135,7 +132,6 @@ export default function ViewTask({
           >
             {isEditMode ? "Save" : "Edit"}
           </motion.button>
-        )}
 
         <h2 className="text-2xl font-semibold mb-4">Task Details</h2>
 
