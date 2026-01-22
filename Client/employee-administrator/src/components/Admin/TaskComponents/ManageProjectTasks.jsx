@@ -138,7 +138,6 @@ export default function ManageProjectTasksModal({
           exit={{ scale: 0.95, opacity: 0 }}
           className="relative w-[75vw] h-[75vh] bg-white rounded-lg shadow-lg flex flex-col overflow-y-auto"
         >
-          {/* Header */}
           <div className="border-b px-6 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">
               Manage Tasks for{" "}
@@ -243,7 +242,7 @@ export default function ManageProjectTasksModal({
                     >
                       {users.map((user) => (
                         <option key={user.id} value={user.id}>
-                          {user.userName} ({user.id})
+                          {user.userName} ({user.email})
                         </option>
                       ))}
                     </select>

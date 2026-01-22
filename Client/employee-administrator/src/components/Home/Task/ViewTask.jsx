@@ -231,7 +231,7 @@ export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
                   <option value="">Select user to add</option>
                   {availableUsers.map((user) => (
                     <option key={user.id} value={user.id}>
-                      {user.userName} ({user.id})
+                      {user.userName} ({user.email})
                     </option>
                   ))}
                 </select>
