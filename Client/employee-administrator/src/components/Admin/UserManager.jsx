@@ -8,11 +8,14 @@ const initialState = {
   email: "",
   password: "",
   phoneNumber: "",
+  fullName: "",
 };
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
 
 const phoneRegex = /^[+]?[0-9\s\-()]{7,20}$/;
+
+const fullNameRegex = /^[a-zA-Z\s]{3,100}$/;
 
 export default function UserManager() {
   const [form, setForm] = useState(initialState);
@@ -45,12 +48,13 @@ export default function UserManager() {
         "Password must contain uppercase, lowercase, number, and symbol (min 8 characters)";
     }
 
-    if (!form.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
+    if (form.phoneNumber.trim() && !phoneRegex.test(form.phoneNumber)) {
+      newErrors.phoneNumber = "Invalid phone number";
     }
 
-    if (!phoneRegex.test(form.phoneNumber) && form.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Invalid phone number";
+    if (form.fullName.trim() && !fullNameRegex.test(form.fullName)) {
+      newErrors.fullName =
+        "Full name must contain only letters and spaces (min 3 characters)";
     }
 
     setErrors(newErrors);
@@ -67,7 +71,8 @@ export default function UserManager() {
         userName: form.userName,
         email: form.email,
         password: form.password,
-        phoneNumber: form.phoneNumber,
+        phoneNumber: form.phoneNumber || null,
+        fullName: form.fullName || null,
       };
 
       const response = await api.post("/Auth/create-user", payload);
@@ -77,12 +82,10 @@ export default function UserManager() {
         setErrors({});
         setSuccess(response.data.message);
         setTimeout(() => setSuccess(null), 3000);
-      }
-
-      if (!response.data.isSuccess) {
+      } else {
         setErrors({ apiError: response.data.message });
       }
-    } catch (err) {
+    } catch {
       setErrors({ apiError: "Unexpected error occurred" });
     }
   };
@@ -113,25 +116,26 @@ export default function UserManager() {
               <motion.div
                 initial={{ opacity: 0, y: -20, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.8 }}
                 transition={{ duration: 0.5 }}
                 className="mb-4 p-3 text-green-700 bg-green-100 rounded text-center font-medium shadow-md"
               >
                 {success}
               </motion.div>
             )}
+
             {errors.apiError && (
               <motion.div
                 initial={{ opacity: 0, y: -20, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.8 }}
                 transition={{ duration: 0.5 }}
                 className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center font-medium shadow-md"
               >
                 {errors.apiError}
               </motion.div>
             )}
+
             <h2 className="text-2xl font-semibold mb-6">Create User</h2>
+
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Username</label>
               <input
@@ -145,6 +149,7 @@ export default function UserManager() {
                 <p className="text-red-500 text-sm mt-1">{errors.userName}</p>
               )}
             </div>
+
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Email</label>
               <input
@@ -158,6 +163,7 @@ export default function UserManager() {
                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
               )}
             </div>
+
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Password</label>
               <input
@@ -171,7 +177,8 @@ export default function UserManager() {
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}
             </div>
-            <div className="mb-6">
+
+            <div className="mb-4">
               <label className="block text-sm font-medium mb-1">
                 Phone Number
               </label>
@@ -186,6 +193,22 @@ export default function UserManager() {
                 <p className="text-red-500 text-sm mt-1">
                   {errors.phoneNumber}
                 </p>
+              )}
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                name="fullName"
+                value={form.fullName}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
+              />
+              {errors.fullName && (
+                <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
               )}
             </div>
 
@@ -218,7 +241,6 @@ export default function UserManager() {
           key="welcome"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="flex-1 flex items-center justify-center p-6"
         >

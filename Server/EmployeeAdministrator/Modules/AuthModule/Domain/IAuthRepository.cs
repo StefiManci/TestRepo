@@ -16,5 +16,7 @@ namespace EmployeeAdministrator.Modules.AuthModule.Domain
         Task<string> GetUserPhotoType(string userId);
 
         Task<UploadPhotoResponse> UploadPhoto(string userId, IFormFile photo);
+
+        Task<CreateCustomerResponse> CreateCustomer(CreateCustomerRequest request);
     }
 }

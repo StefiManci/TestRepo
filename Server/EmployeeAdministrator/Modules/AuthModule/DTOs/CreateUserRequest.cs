@@ -20,10 +20,10 @@
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Phone number is required")]
-        [Phone(ErrorMessage = "Invalid phone number format")]
-        [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
         public string PhoneNumber { get; set; }
+
+
+        public string FullName { get; set; }
 
     }
 

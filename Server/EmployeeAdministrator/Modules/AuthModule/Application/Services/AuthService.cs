@@ -42,9 +42,19 @@ namespace EmployeeAdministrator.Modules.AuthModule.Application.Services
                     return new CreateUserResponse
                     {
                         IsSuccess = false,
-                        Message = "Failed To Create User!"
+                        Message = result.Errors.ToString()
                     };
                 }
+
+                var user =await _userManager.FindByEmailAsync(createUserRequest.Email);
+
+                var createCustomerRequest = new CreateCustomerRequest
+                {
+                    UserId = user.Id,
+                    FullName = createUserRequest.FullName
+                };
+
+                var createCustomer = await _authRepository.CreateCustomer(createCustomerRequest);
 
                 if (await _roleManager.RoleExistsAsync("Employee"))
                 {

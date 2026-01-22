@@ -313,5 +313,46 @@ namespace EmployeeAdministrator.Modules.AuthModule.Infrastructure
             };
 
         }
+
+        public async Task<CreateCustomerResponse> CreateCustomer(CreateCustomerRequest request)
+        {
+            try
+            {
+              var customer = await _dbContext.Customers.FirstOrDefaultAsync(c=>c.UserId ==request.UserId);
+
+              if(customer == null)
+                {
+                    var newCustomer = new Customer
+                    {
+                        UserId = request.UserId,
+                        FullName = request.FullName
+                    };
+
+                    _dbContext.Customers.Add(newCustomer);
+                    await _dbContext.SaveChangesAsync();
+
+                    return new CreateCustomerResponse
+                    {
+                        Success = true,
+                        Message = "Customer Created!"
+                    };
+                }
+
+                return new CreateCustomerResponse
+                {
+                    Success = false,
+                    Message = "Customer Exists!"
+                };
+
+            }
+            catch(Exception ex)
+            {
+                return new CreateCustomerResponse
+                {
+                    Success = false,
+                    Message = "Database Error!"
+                };
+            }
+        }
     }
 }
