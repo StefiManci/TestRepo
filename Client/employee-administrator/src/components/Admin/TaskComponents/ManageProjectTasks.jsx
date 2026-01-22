@@ -81,6 +81,8 @@ export default function ManageProjectTasksModal({
       new Date(newTask.dueDate) < new Date(new Date().toDateString())
     ) {
       currentErrors.dueDate = "Due date cannot be in the past.";
+    } else if (new Date(newTask.dueDate) > new Date(project.dueDate)) {
+      currentErrors.dueDate = "Due date cannot be after project deadline.";
     }
 
     setErrors(currentErrors);
@@ -266,6 +268,7 @@ export default function ManageProjectTasksModal({
               task={taskInView}
               onClose={handleViewTaskToggle}
               setChange={setChange}
+              projectDueDate={project.dueDate}
             />
           )}
           <div className="flex-1 p-6 overflow-y-auto">

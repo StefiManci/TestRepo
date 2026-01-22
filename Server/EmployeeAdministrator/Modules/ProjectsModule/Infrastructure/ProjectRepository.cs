@@ -4,6 +4,7 @@ using EmployeeAdministrator.Modules.ProjectsModule.Domain;
 using EmployeeAdministrator.Modules.ProjectsModule.DTOs;
 using EmployeeAdministrator.Modules.ProjectsModule.DTOs.User;
 using Microsoft.EntityFrameworkCore;
+using Task = EmployeeAdministrator.Migrations.Task;
 
 namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
 {
@@ -56,21 +57,45 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
             {
                 var projectToBeDeleted = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
 
+                var taskList = new List<TasksModule.DTOs.Task>();
+
                 if(projectToBeDeleted != null)
                 {
                     if (projectToBeDeleted.ProjectTasks.Any())
                     {
-                        return new DeleteProjectResponse
+                        foreach(var task in projectToBeDeleted.ProjectTasks)
                         {
-                            Success = false,
-                            Message = "Project has tasks on it and cannot be deleted!"
-                        };
-                    }
+                            var existingTask = _dbContext.Tasks.Where(t=>t.Id.ToString() == task).FirstOrDefault();
 
-                   _dbContext.Projects.Remove(projectToBeDeleted);
-                    await _dbContext.SaveChangesAsync();
+                            if(existingTask != null)
+                            {
+                                taskList.Add(existingTask);
+                            }
+                        }
 
-                    return new DeleteProjectResponse { Success = true , Message ="Project Deleted!"};
+                        var areAllTasksCompleted = true;
+
+                        foreach(var task in taskList)
+                        {
+                            if(task.IsCompleted == false)
+                            {
+                                areAllTasksCompleted = false;
+                            }
+                        }
+
+                        if(areAllTasksCompleted==false)
+                        {
+                            return new DeleteProjectResponse
+                            {
+                                Success = false,
+                                Message = "Project has not completed tasks on it and cannot be deleted!"
+                            };
+                        }
+                         _dbContext.Projects.Remove(projectToBeDeleted);
+                         await _dbContext.SaveChangesAsync();
+
+                         return new DeleteProjectResponse { Success = true , Message ="Project Deleted!"};
+                    } 
                 }
 
                 return new DeleteProjectResponse

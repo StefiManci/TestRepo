@@ -5,7 +5,11 @@ import ViewTask from "./ViewTask";
 import CreateTask from "./CreateTask";
 import { motion } from "framer-motion";
 
-export default function Tasks({ selectedProject, setSelectedProject }) {
+export default function Tasks({
+  selectedProject,
+  setSelectedProject,
+  projectDueDate,
+}) {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewTaskModal, setViewTaskModal] = useState(false);
@@ -172,6 +176,7 @@ export default function Tasks({ selectedProject, setSelectedProject }) {
           onClose={handleViewModal}
           setChange={setChange}
           setTaskInView={setTaskInView}
+          projectDueDate={projectDueDate}
         />
       )}
     </div>

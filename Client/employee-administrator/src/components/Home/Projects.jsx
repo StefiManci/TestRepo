@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import api from "../../config/api";
 import { motion } from "framer-motion";
 
-export default function Projects({ setSelectedProject }) {
+export default function Projects({ setSelectedProject, setProjectDueDate }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,8 +28,9 @@ export default function Projects({ setSelectedProject }) {
     fetchProjects();
   }, [token, userId, userRole]);
 
-  const handleProjectClick = (projectId) => {
+  const handleProjectClick = (projectId, dueDate) => {
     setSelectedProject(projectId);
+    setProjectDueDate(dueDate);
   };
 
   return (
@@ -54,7 +55,9 @@ export default function Projects({ setSelectedProject }) {
               return (
                 <motion.div
                   key={project.id}
-                  onClick={() => handleProjectClick(project.id)}
+                  onClick={() =>
+                    handleProjectClick(project.id, project.dueDate)
+                  }
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}

@@ -3,13 +3,20 @@ import { useEffect, useState } from "react";
 import api from "../../../config/api";
 import { motion } from "framer-motion";
 
-export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
+export default function ViewTask({
+  task,
+  onClose,
+  setChange,
+  setTaskInView,
+  projectDueDate,
+}) {
   const userRole = useSelector((state) => state.auth.userRole);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedTask, setEditedTask] = useState(null);
   const [newUserId, setNewUserId] = useState("");
   const [users, setUsers] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     async function fetchProjectUsers() {
@@ -22,7 +29,6 @@ export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
         console.error(err);
       }
     }
-
     fetchProjectUsers();
   }, [task]);
 
@@ -38,17 +44,50 @@ export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
   const handleChange = (field, value) =>
     setEditedTask((prev) => ({ ...prev, [field]: value }));
 
+  const validate = () => {
+    const errs = {};
+
+    if (!editedTask.title?.trim()) {
+      errs.title = "Title is required";
+    } else if (editedTask.title.length < 3 || editedTask.title.length > 100) {
+      errs.title = "Title must be between 3 and 100 characters";
+    }
+
+    if (!editedTask.description?.trim()) {
+      errs.description = "Description is required";
+    } else if (editedTask.description.length > 500) {
+      errs.description = "Description cannot exceed 500 characters";
+    }
+
+    if (!editedTask.dueDate) {
+      errs.dueDate = "Due date is required";
+    } else if (new Date(editedTask.dueDate) > new Date(projectDueDate)) {
+      errs.dueDate = "Due date cannot be after project deadline.";
+    }
+
+    if (!editedTask.projectId || editedTask.projectId < 1) {
+      errs.projectId = "ProjectId must be a valid positive number";
+    }
+
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleSave = async () => {
+    if (!validate()) return;
+
+    console.log(projectDueDate);
+
     try {
       const response = await api.post("/task/edit-task", editedTask);
       if (response.data.success) {
         setTaskInView(editedTask);
         setChange((prev) => prev + 1);
+        setIsEditMode(false);
       }
     } catch (err) {
       console.log(err);
     }
-    setIsEditMode(false);
   };
 
   const handleRemoveUser = (userId) =>
@@ -104,30 +143,40 @@ export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
           <div>
             <span className="font-semibold">Title:</span>
             {isEditMode ? (
-              <input
-                className="w-full border rounded px-2 py-1 mt-1"
-                value={editedTask.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-              />
+              <>
+                <input
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={editedTask.title}
+                  onChange={(e) => handleChange("title", e.target.value)}
+                />
+                {errors.title && (
+                  <p className="text-red-600 text-sm mt-1">{errors.title}</p>
+                )}
+              </>
             ) : (
               <p>{task.title}</p>
             )}
           </div>
-
           <div>
             <span className="font-semibold">Description:</span>
             {isEditMode ? (
-              <textarea
-                className="w-full border rounded px-2 py-1 mt-1"
-                rows={3}
-                value={editedTask.description}
-                onChange={(e) => handleChange("description", e.target.value)}
-              />
+              <>
+                <textarea
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  rows={3}
+                  value={editedTask.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                />
+                {errors.description && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.description}
+                  </p>
+                )}
+              </>
             ) : (
               <p>{task.description}</p>
             )}
           </div>
-
           <div className="flex gap-8">
             <div>
               <span className="font-semibold">Is Completed:</span>
@@ -164,7 +213,6 @@ export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
               <p>{task.projectId}</p>
             </div>
           </div>
-
           <div className="flex gap-8">
             <div>
               <span className="font-semibold">Created At:</span>
@@ -174,20 +222,26 @@ export default function ViewTask({ task, onClose, setChange, setTaskInView }) {
             <div>
               <span className="font-semibold">Due Date:</span>
               {isEditMode ? (
-                <input
-                  type="date"
-                  className="border rounded px-2 py-1"
-                  value={
-                    editedTask.dueDate ? editedTask.dueDate.split("T")[0] : ""
-                  }
-                  onChange={(e) => handleChange("dueDate", e.target.value)}
-                />
+                <>
+                  <input
+                    type="date"
+                    className="border rounded px-2 py-1"
+                    value={
+                      editedTask.dueDate ? editedTask.dueDate.split("T")[0] : ""
+                    }
+                    onChange={(e) => handleChange("dueDate", e.target.value)}
+                  />
+                  {errors.dueDate && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.dueDate}
+                    </p>
+                  )}
+                </>
               ) : (
                 <p>{new Date(task.dueDate).toLocaleDateString()}</p>
               )}
             </div>
           </div>
-
           <div>
             <span className="font-semibold">Assigned Users:</span>
             {editedTask.assignedUserIds?.length > 0 ? (
