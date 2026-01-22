@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState(0);
   const [projectDueDate, setProjectDueDate] = useState(null);
+  const [projectName, setProjectName] = useState(null);
 
   return (
     <div className="flex-1 p-6 bg-gray-100 min-h-screen">
@@ -20,6 +21,7 @@ export default function Home() {
           <Projects
             setSelectedProject={setSelectedProject}
             setProjectDueDate={setProjectDueDate}
+            setProjectName={setProjectName}
           />
         </motion.div>
 
@@ -36,6 +38,7 @@ export default function Home() {
             selectedProject={selectedProject}
             setSelectedProject={setSelectedProject}
             projectDueDate={projectDueDate}
+            projectName={projectName}
           />
         </motion.div>
       </div>

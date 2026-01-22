@@ -203,11 +203,6 @@ export default function ViewTask({
                 </p>
               )}
             </div>
-
-            <div>
-              <span className="font-semibold">Project ID:</span>
-              <p>{task.projectId}</p>
-            </div>
           </div>
           <div className="flex gap-8">
             <div>

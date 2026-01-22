@@ -9,6 +9,7 @@ export default function Tasks({
   selectedProject,
   setSelectedProject,
   projectDueDate,
+  projectName,
 }) {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -81,7 +82,7 @@ export default function Tasks({
                   Selected Project
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Project ID: {selectedProject}
+                  Project Name: {projectName}
                 </p>
               </div>
             </div>
