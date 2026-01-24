@@ -59,15 +59,15 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
 
                 var taskList = new List<TasksModule.DTOs.Task>();
 
-                if(projectToBeDeleted != null)
+                if (projectToBeDeleted != null)
                 {
                     if (projectToBeDeleted.ProjectTasks.Any())
                     {
-                        foreach(var task in projectToBeDeleted.ProjectTasks)
+                        foreach (var task in projectToBeDeleted.ProjectTasks)
                         {
-                            var existingTask = _dbContext.Tasks.Where(t=>t.Id.ToString() == task).FirstOrDefault();
+                            var existingTask = _dbContext.Tasks.Where(t => t.Id.ToString() == task).FirstOrDefault();
 
-                            if(existingTask != null)
+                            if (existingTask != null)
                             {
                                 taskList.Add(existingTask);
                             }
@@ -75,15 +75,15 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
 
                         var areAllTasksCompleted = true;
 
-                        foreach(var task in taskList)
+                        foreach (var task in taskList)
                         {
-                            if(task.IsCompleted == false)
+                            if (task.IsCompleted == false)
                             {
                                 areAllTasksCompleted = false;
                             }
                         }
 
-                        if(areAllTasksCompleted==false)
+                        if (areAllTasksCompleted == false)
                         {
                             return new DeleteProjectResponse
                             {
@@ -91,10 +91,47 @@ namespace EmployeeAdministrator.Modules.ProjectsModule.Infrastructure
                                 Message = "Project has not completed tasks on it and cannot be deleted!"
                             };
                         }
-                         _dbContext.Projects.Remove(projectToBeDeleted);
-                         await _dbContext.SaveChangesAsync();
 
-                         return new DeleteProjectResponse { Success = true , Message ="Project Deleted!"};
+                        var deletedProject = new ProjectDTO
+                        {
+                            Id = projectToBeDeleted.Id,
+                            Name = projectToBeDeleted.Name,
+                            Description = projectToBeDeleted.Description,
+                            CreatedAt = projectToBeDeleted.CreatedAt,
+                            DueDate = projectToBeDeleted.DueDate,
+                            AssignedUserIds = projectToBeDeleted.AssignedUserIds,
+                            ProjectTasks = projectToBeDeleted.ProjectTasks,
+                            IsCompleted = projectToBeDeleted.IsCompleted,
+                            IsDeletedOn = DateTime.Now,
+                        };
+
+                        _dbContext.DeletedProjects.Add(deletedProject);
+
+                        _dbContext.Projects.Remove(projectToBeDeleted);
+                        await _dbContext.SaveChangesAsync();
+
+                        return new DeleteProjectResponse { Success = true, Message = "Project Deleted!" };
+                    }
+                    else
+                    {
+                        var deletedProject = new ProjectDTO
+                        {
+                            Name = projectToBeDeleted.Name,
+                            Description = projectToBeDeleted.Description,
+                            CreatedAt = projectToBeDeleted.CreatedAt,
+                            DueDate = projectToBeDeleted.DueDate,
+                            AssignedUserIds = projectToBeDeleted.AssignedUserIds,
+                            ProjectTasks = projectToBeDeleted.ProjectTasks,
+                            IsCompleted = projectToBeDeleted.IsCompleted,
+                            IsDeletedOn = DateTime.Now,
+                        };
+
+                        _dbContext.DeletedProjects.Add(deletedProject);
+
+                        _dbContext.Projects.Remove(projectToBeDeleted);
+                        await _dbContext.SaveChangesAsync();
+
+                        return new DeleteProjectResponse { Success = true, Message = "Project Deleted!" };
                     } 
                 }
 

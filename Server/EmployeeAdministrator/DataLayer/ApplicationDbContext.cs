@@ -15,6 +15,8 @@ namespace EmployeeAdministrator.DataLayer
 
         public DbSet<Project> Projects { get; set; }
 
+        public DbSet<ProjectDTO> DeletedProjects { get; set; }
+
         public DbSet<EmployeeAdministrator.Modules.TasksModule.DTOs.Task> Tasks { get; set; }
 
         public DbSet<Customer> Customers { get; set; }
