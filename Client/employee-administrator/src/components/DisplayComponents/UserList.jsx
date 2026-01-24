@@ -84,7 +84,6 @@ export default function UserList() {
         <table className="min-w-full border-collapse">
           <thead className="bg-gradient-to-r from-slate-800 to-slate-700 text-white sticky top-0 z-10">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold">ID</th>
               <th className="px-6 py-3 text-left text-sm font-semibold">
                 Username
               </th>
@@ -111,10 +110,6 @@ export default function UserList() {
                   transition={{ duration: 0.2 }}
                   className="border-b last:border-b-0 hover:bg-slate-50 transition"
                 >
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    #{user.id.slice(0, 6)}
-                  </td>
-
                   <td className="px-6 py-4">
                     <div className="font-medium text-gray-900">
                       {user.userName}

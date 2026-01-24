@@ -193,9 +193,6 @@ export default function UserProfile() {
 
           <div className="mt-6 space-y-1 text-sm text-gray-700 w-full">
             <div>
-              <strong>ID:</strong> {editUser.userId}
-            </div>
-            <div>
               <strong>Username:</strong> {editUser.userName}
             </div>
             <div>
